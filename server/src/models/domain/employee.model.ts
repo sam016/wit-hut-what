@@ -1,13 +1,18 @@
-import { Entity, model, property } from '@loopback/repository';
-import { BaseEntity } from './base.model';
+import { Entity, model, property, hasMany } from '@loopback/repository';
+import { BaseEntity } from './base-entity.model';
+import { PerformanceReview } from './performance-review.model';
 
 @model({ settings: { strict: false } })
 export class Employee extends BaseEntity {
   // Define well-known properties here
 
-  // Indexer property to allow additional data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [prop: string]: any;
+  @property({
+
+  })
+  role: string;
+
+  @hasMany(() => PerformanceReview, { keyTo: 'employeeId' })
+  performanceReviews?: PerformanceReview[];
 
   constructor(data?: Partial<Employee>) {
     super(data);

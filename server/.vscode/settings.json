@@ -1,10 +1,11 @@
 {
-  "editor.rulers": [80],
+  "editor.rulers": [
+    80
+  ],
   "editor.tabCompletion": "on",
   "editor.tabSize": 2,
   "editor.trimAutoWhitespace": true,
   "editor.formatOnSave": true,
-
   "files.exclude": {
     "**/.DS_Store": true,
     "**/.git": true,
@@ -15,7 +16,6 @@
   },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
-
   "typescript.tsdk": "./node_modules/typescript/lib",
   "eslint.autoFixOnSave": true,
   "eslint.run": "onSave",
@@ -23,8 +23,9 @@
   "eslint.validate": [
     "javascript",
     {
-        "language": "typescript",
-        "autoFix": true
+      "language": "typescript",
+      "autoFix": true
     }
-  ]
+  ],
+  "explorer.autoReveal": false
 }

@@ -37,3 +37,9 @@ export class BaseEntity extends Entity {
     super(data);
   }
 }
+
+export interface BaseEntityRelations {
+  // describe navigational properties here
+}
+
+export type BaseEntityWithRelations = BaseEntity & BaseEntityRelations;

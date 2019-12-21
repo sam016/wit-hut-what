@@ -1,0 +1,10 @@
+{
+  "name": "mysqldb",
+  "connector": "mysql",
+  "url": "",
+  "host": "db",
+  "port": 3306,
+  "user": "user",
+  "password": "password",
+  "database": "org-erm"
+}

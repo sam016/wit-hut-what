@@ -24,5 +24,7 @@ declare const OrgErm_base: (new (...args: any[]) => {
 }) & typeof RestApplication;
 export declare class OrgErm extends OrgErm_base {
     constructor(options?: ApplicationConfig);
+    private bindValues;
+    private bindComponents;
 }
 export {};

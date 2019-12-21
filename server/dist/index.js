@@ -8,7 +8,7 @@ async function main(options = {}) {
     await app.start();
     const url = app.restServer.url;
     console.log(`Server is running at ${url}`);
-    console.log(`Try ${url}/ping`);
+    console.log(`Checkout swagger at ${url}/explorer`);
     return app;
 }
 exports.main = main;
