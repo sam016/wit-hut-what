@@ -5,12 +5,15 @@ services:
       dockerfile: ./Dockerfile
       context: ./server
     volumes:
-      - ./server:/home/node/app
+      - ./server/Org.ERM.WebApi:/app
     ports:
-      - 3000:3000
+      - 5000:5000
+      - 5001:5001
     links:
       - db
       - adminer
+    stdin_open: true
+    tty: true
   mailhog:
     image: mailhog/mailhog
     ports:
