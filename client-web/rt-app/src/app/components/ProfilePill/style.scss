@@ -1,0 +1,27 @@
+.profile-pill {
+  margin-top: 0.3em;
+  .user-greeting {
+    font-size: 0.9em;
+    font-style: italic;
+    color: #777;
+  }
+  .user-info {
+    margin: 0 5px;
+    .user-name {
+      color: indigo;
+      text-decoration: underline;
+    }
+    .user-role {
+      &::before {
+        content: "#";
+        margin: 0 5px;
+      }
+      color: goldenrod;
+      font-weight: bold;
+      font-size: 0.8em;
+    }
+  }
+  .logout {
+    padding: 2px 10px;
+  }
+}

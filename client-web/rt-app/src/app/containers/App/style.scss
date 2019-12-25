@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+.fly-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  > .content {
+    margin-left: 50%;
+    margin-top: 40%;
+    transform: translate(-50%, -50%);
+    font-size: 3em;
+    text-align: center;
+  }
+}
