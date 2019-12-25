@@ -2,10 +2,9 @@ using System;
 
 namespace Org.ERM.WebApi.Exceptions
 {
-    public class InvalidCredentialsException : Exception
+    public class InvalidCredentialsException : HttpResponseException
     {
-        private const string ERR_MESSAGE = "Invalid credentials";
-        public InvalidCredentialsException() : base(ERR_MESSAGE) { }
+        public InvalidCredentialsException() : base(401, "Invalid credentials") { }
     }
 
 }
