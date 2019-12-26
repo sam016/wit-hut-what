@@ -9,8 +9,11 @@ namespace Org.ERM.WebApi.Models.Domain
         public int PerformanceReviewId { get; set; }
         public PerformanceReview PerformanceReview { get; set; }
 
-        public int EmployeeId { get; set; }
-        public Employee Employee { get; set; }
+        public int FromEmployeeId { get; set; }
+        public Employee FromEmployee { get; set; }
+
+        public int ForEmployeeId { get; set; }
+        public Employee ForEmployee { get; set; }
 
         public int OrganizationId { get; set; }
         public Organization Organization { get; set; }

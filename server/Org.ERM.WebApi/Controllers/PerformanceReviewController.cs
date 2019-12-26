@@ -24,21 +24,24 @@ namespace Org.ERM.WebApi.Controllers
         private readonly IPerformanceReviewRepository PerformanceReviewRepository;
         private readonly IAuthenticationService AuthenticationService;
         private readonly IOrganizationRepository OrganizationRepository;
+        private readonly IEmployeeRepository EmployeeRepository;
 
         public PerformanceReviewController(
             ILogger<PerformanceReviewController> logger,
             IMapper mapper,
             IAuthenticationService authenticationService,
             IOrganizationRepository organizationRepository,
+            IEmployeeRepository employeeRepository,
             IPerformanceReviewRepository performanceReviewRepository) : base(logger, mapper)
         {
             PerformanceReviewRepository = performanceReviewRepository;
             AuthenticationService = authenticationService;
             OrganizationRepository = organizationRepository;
+            EmployeeRepository = employeeRepository;
         }
 
         [HttpPost("")]
-        [Authorize("SuperAdmin,Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(PerformanceReviewDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(500)]
@@ -53,17 +56,20 @@ namespace Org.ERM.WebApi.Controllers
 
             var performanceReview = new PerformanceReview()
             {
+                Name = request.Name,
                 OrganizationId = orgId,
-                EmployeeId = userId,
+                EmployeeId = empId,
             };
+
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             await PerformanceReviewRepository.CreateAsync(performanceReview);
 
-            return CreatedAtAction(nameof(GetById), new { id = performanceReview.Id }, Mapper.Map<PerformanceReviewDto>(performanceReview));
+            return CreatedAtAction(nameof(GetById), new { orgId = orgId, empId = empId, id = performanceReview.Id }, Mapper.Map<PerformanceReviewDto>(performanceReview));
         }
 
         [HttpGet("/organizations/{orgId}/performance-reviews")]
-        [Authorize("SuperAdmin,Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<PerformanceReviewDto>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetAllInOrganizationAsync([FromRoute] int orgId)
@@ -94,7 +100,7 @@ namespace Org.ERM.WebApi.Controllers
             var userId = AuthenticationService.GetLoggedInUserId();
             var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
 
-            // logged in user doesn't permission to access in organization
+            // logged in user doesn't have permission to access in organization
             if ((userRole == UserRole.Admin || userRole == UserRole.Employee) && orgId != userOrgId)
             {
                 return NotFound();
@@ -137,15 +143,61 @@ namespace Org.ERM.WebApi.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetPermittedAsync([FromRoute] int orgId, [FromRoute] int empId)
         {
-            var performanceReview = await PerformanceReviewRepository.GetAllPermittedAsync(orgId, empId);
+            var userRole = AuthenticationService.GetLoggedInUserRole();
+            var userId = AuthenticationService.GetLoggedInUserId();
+            var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
 
-            var performanceReviewDto = Mapper.Map<PerformanceReviewDto>(performanceReview);
+            var organization = await OrganizationRepository.GetByIdAsync(orgId);
 
-            return Ok(performanceReviewDto);
+            if (organization == null)
+            {
+                return NotFound();
+            }
+
+            // logged in user doesn't have permission to access in organization
+            if ((userRole == UserRole.Admin || userRole == UserRole.Employee) && orgId != userOrgId)
+            {
+                return NotFound();
+            }
+
+            // logged in user when employee is diff then the request user
+            if (userRole == UserRole.Employee && userId != empId)
+            {
+                return NotFound();
+            }
+
+            IEnumerable<PerformanceReview> performanceReviews;
+
+            if (userRole == UserRole.Admin || userRole == UserRole.SuperAdmin)
+            {
+                performanceReviews = await PerformanceReviewRepository.GetAllAsync(orgId);
+            }
+            else
+            {
+                performanceReviews = await PerformanceReviewRepository.GetAllPermittedAsync(orgId, empId);
+            }
+
+            var empIds = performanceReviews.Select(pr => pr.EmployeeId);
+
+            var employees = await EmployeeRepository.GetByIdsAsync(empIds);
+            var mapEmployees = employees.ToDictionary(e => e.Id, e => e);
+            var orgDto = new BaseEntityDto(orgId, organization.Name);
+
+            var performanceReviewDtos = performanceReviews.Select(pr => new PerformanceReviewDto
+            {
+                Id = pr.Id,
+                Name = pr.Name,
+                Employee = (mapEmployees.ContainsKey(pr.EmployeeId)
+                            ? new BaseEntityDto(pr.EmployeeId, mapEmployees[pr.EmployeeId].Name)
+                            : null),
+                Organization = orgDto,
+            });
+
+            return Ok(performanceReviewDtos);
         }
 
         [HttpPost("/organizations/{orgId}/employees/{empId}/permit/performance-reviews/{performanceReviewId}")]
-        [Authorize("SuperAdmin,Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> PermitAsync([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId)
@@ -166,7 +218,7 @@ namespace Org.ERM.WebApi.Controllers
         }
 
         [HttpPost("/organizations/{orgId}/employees/{empId}/prohibit/performance-reviews/{performanceReviewId}")]
-        [Authorize("SuperAdmin,Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> ProhibitAsync([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId)

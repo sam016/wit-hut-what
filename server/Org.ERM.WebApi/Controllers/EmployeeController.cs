@@ -18,7 +18,7 @@ namespace Org.ERM.WebApi.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("employees")]
+    [Route("organizations/{orgId}/employees")]
     public class EmployeeController : BaseController
     {
         private readonly IEmployeeRepository EmployeeRepository;
@@ -38,7 +38,7 @@ namespace Org.ERM.WebApi.Controllers
         [Authorize("SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(EmployeeDto))]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> RegisterAsync([FromBody]CreateEmployeeRequest request)
+        public async Task<IActionResult> RegisterAsync([FromRoute] int orgId, [FromBody]CreateEmployeeRequest request)
         {
             if (request.Password != request.ConfirmPassword)
             {
@@ -57,7 +57,7 @@ namespace Org.ERM.WebApi.Controllers
                 Name = request.Name,
                 Email = request.Email,
                 Password = Utils.HashHelper.HashPassword(request.Password),
-                OrganizationId = 0,
+                OrganizationId = orgId,
                 Role = Enums.UserRole.Employee,
             };
 
@@ -68,22 +68,27 @@ namespace Org.ERM.WebApi.Controllers
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<EmployeeDto>))]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromRoute] int orgId)
         {
             var userRole = AuthenticationService.GetLoggedInUserRole();
             var userId = AuthenticationService.GetLoggedInUserId();
             var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
+
+            if ((userRole == UserRole.Employee || userRole == UserRole.Admin) && userOrgId != orgId)
+            {
+                return NotFound();
+            }
 
             IEnumerable<Employee> employees;
 
             // logged in user is Employee && requested user id is different
             if (userRole == UserRole.Employee)
             {
-                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == userOrgId && e.Id == userId);
+                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId && e.Id == userId);
             }
             else if (userRole == UserRole.Admin)
             {
-                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == userOrgId);
+                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
             }
             else
             {
@@ -98,11 +103,17 @@ namespace Org.ERM.WebApi.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(EmployeeDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetById([FromRoute]int id)
+        public async Task<IActionResult> GetById([FromRoute] int orgId, [FromRoute]int id)
         {
             var userRole = AuthenticationService.GetLoggedInUserRole();
             var userId = AuthenticationService.GetLoggedInUserId();
             var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
+
+            // user doesn't permission in the orgId
+            if ((userRole == UserRole.Employee || userRole == UserRole.Admin) && userOrgId != orgId)
+            {
+                return NotFound();
+            }
 
             // logged in user is Employee && requested user id is different
             if (userRole == UserRole.Employee && userId != id)
@@ -112,7 +123,7 @@ namespace Org.ERM.WebApi.Controllers
 
             var employee = await EmployeeRepository.GetByIdAsync(id);
 
-            if (employee == null || (userRole == UserRole.Admin && userOrgId != employee.OrganizationId))
+            if (employee == null || (userRole == UserRole.Admin && orgId != employee.OrganizationId))
             {
                 return NotFound();
             }

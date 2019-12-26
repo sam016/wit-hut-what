@@ -10,5 +10,13 @@ namespace Org.ERM.WebApi.Models.Dtos
     public class BaseEntityDto : BaseDto
     {
         public string Name { get; set; }
+
+        public BaseEntityDto() { }
+
+        public BaseEntityDto(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
     }
 }

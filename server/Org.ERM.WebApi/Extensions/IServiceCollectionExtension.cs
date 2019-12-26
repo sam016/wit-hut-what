@@ -30,6 +30,8 @@ namespace Org.ERM.WebApi.Extensions
         {
             services.AddTransient<IEmployeeRepository, EmployeeRepository>();
             services.AddTransient<IOrganizationRepository, OrganizationRepository>();
+            services.AddTransient<IPerformanceReviewRepository, PerformanceReviewRepository>();
+            services.AddTransient<IPerformanceReviewFeedbackRepository, PerformanceReviewFeedbackRepository>();
         }
 
         public static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

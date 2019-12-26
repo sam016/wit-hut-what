@@ -22,6 +22,7 @@ namespace Org.ERM.WebApi.Controllers
     public class PerformanceReviewFeedbackController : BaseController
     {
         private readonly IPerformanceReviewFeedbackRepository PerformanceReviewFeedbackRepository;
+        private readonly IPerformanceReviewRepository PerformanceReviewRepository;
         private readonly IAuthenticationService AuthenticationService;
         private readonly IOrganizationRepository OrganizationRepository;
         private readonly IEmployeeRepository EmployeeRepository;
@@ -32,9 +33,11 @@ namespace Org.ERM.WebApi.Controllers
             IAuthenticationService authenticationService,
             IOrganizationRepository organizationRepository,
             IEmployeeRepository employeeRepository,
-            IPerformanceReviewFeedbackRepository performanceReviewRepository) : base(logger, mapper)
+            IPerformanceReviewRepository performanceReviewRepository,
+            IPerformanceReviewFeedbackRepository performanceReviewFeedbackRepository) : base(logger, mapper)
         {
-            PerformanceReviewFeedbackRepository = performanceReviewRepository;
+            PerformanceReviewFeedbackRepository = performanceReviewFeedbackRepository;
+            PerformanceReviewRepository = performanceReviewRepository;
             AuthenticationService = authenticationService;
             OrganizationRepository = organizationRepository;
             EmployeeRepository = employeeRepository;
@@ -56,13 +59,25 @@ namespace Org.ERM.WebApi.Controllers
                 return NotFound();
             }
 
-            var performanceReview = new PerformanceReviewFeedback()
+            var performanceReview = await PerformanceReviewRepository.GetByIdAsync(performanceReviewId);
+
+            if (performanceReview == null)
+            {
+                return NotFound();
+            }
+
+            var fromEmpId = AuthenticationService.GetLoggedInUserId();
+
+            var performanceReviewFeedback = new PerformanceReviewFeedback()
             {
                 OrganizationId = orgId,
-                EmployeeId = empId,
+                FromEmployeeId = fromEmpId,
+                ForEmployeeId = performanceReview.EmployeeId,
+                Comment = request.Comment,
+                Rating = request.Rating,
             };
 
-            await PerformanceReviewFeedbackRepository.CreateAsync(performanceReview);
+            await PerformanceReviewFeedbackRepository.CreateAsync(performanceReviewFeedback);
 
             return CreatedAtAction(nameof(GetById), new { id = performanceReview.Id }, Mapper.Map<PerformanceReviewFeedbackDto>(performanceReview));
         }
@@ -101,14 +116,14 @@ namespace Org.ERM.WebApi.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetById([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId, [FromRoute]int id)
         {
-            var performanceReview = await PerformanceReviewFeedbackRepository.GetByIdAsync(id);
+            var performanceReviewFeedback = await PerformanceReviewFeedbackRepository.GetByIdAsync(id);
 
-            if (performanceReview == null || CanUserAccessPerformanceReviewFeedback(performanceReview))
+            if (performanceReviewFeedback == null || CanUserAccessPerformanceReviewFeedback(performanceReviewFeedback))
             {
                 return NotFound();
             }
 
-            var performanceReviewDto = Mapper.Map<PerformanceReviewFeedbackDto>(performanceReview);
+            var performanceReviewDto = Mapper.Map<PerformanceReviewFeedbackDto>(performanceReviewFeedback);
 
             return Ok(performanceReviewDto);
         }
@@ -129,7 +144,7 @@ namespace Org.ERM.WebApi.Controllers
                 return true;
             }
 
-            if (userRole == UserRole.Employee && userOrgId == review.OrganizationId && userId == review.EmployeeId)
+            if (userRole == UserRole.Employee && userOrgId == review.OrganizationId && userId == review.FromEmployeeId)
             {
                 return true;
             }

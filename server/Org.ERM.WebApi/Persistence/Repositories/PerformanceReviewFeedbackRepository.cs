@@ -28,13 +28,13 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
         public async Task<IEnumerable<PerformanceReviewFeedback>> GetAllAsync(int orgId, int empId)
         {
-            return await this.GetAllAsync(pr => pr.OrganizationId == orgId && pr.EmployeeId == empId);
+            return await this.GetAllAsync(pr => pr.OrganizationId == orgId && pr.ForEmployeeId == empId);
         }
 
         public async Task<IEnumerable<PerformanceReviewFeedback>> GetAllAsync(int orgId, int empId, int performanceReviewId)
         {
             return await this.GetAllAsync(pr => pr.OrganizationId == orgId
-                                            && pr.EmployeeId == empId
+                                            && pr.ForEmployeeId == empId
                                             && pr.PerformanceReviewId == performanceReviewId);
         }
 

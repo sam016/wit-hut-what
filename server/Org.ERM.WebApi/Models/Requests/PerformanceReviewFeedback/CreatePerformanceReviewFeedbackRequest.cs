@@ -1,10 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Org.ERM.WebApi.Models.Requests.PerformanceReview
+namespace Org.ERM.WebApi.Models.Requests.PerformanceReviewFeedback
 {
-    public class CreatePerformanceReviewRequest
+    public class CreatePerformanceReviewFeedbackRequest
     {
         [Required]
-        public int EmployeeId { get; set; }
+        [StringLength(100)]
+        public string Comment { get; set; }
+
+        [Required]
+        [Range(1, 5)]
+        public byte Rating { get; set; }
     }
 }

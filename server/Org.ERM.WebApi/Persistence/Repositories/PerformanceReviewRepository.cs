@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Org.ERM.WebApi.Models.Domain;
+using Org.ERM.WebApi.Models.Dtos;
 
 namespace Org.ERM.WebApi.Persistence.Repositories
 {
@@ -43,8 +44,17 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
         public async Task<IEnumerable<PerformanceReview>> GetAllPermittedAsync(int orgId, int empId)
         {
-            var employee = await DBContext.Employee.FindAsync(orgId);
-            return employee.PermittedPerformanceReviews.Select(pr => pr.PerformanceReview);
+            var query = $@"SELECT PR.*
+                        FROM PerformanceReviewACL PRACL
+                        INNER JOIN PerformanceReview PR
+                            ON PR.Id = PRACL.PerformanceReviewId
+                            ON PR.OrganizationId = {orgId}
+                            ON PRACL.EmployeeId = {empId}
+                        INNER JOIN Employee EMP
+                            ON PR.EmployeeId = EMP.Id
+                        ";
+            var employees = await this.DBSet.FromSqlRaw(query).ToListAsync();
+            return employees;
         }
 
         public async Task<bool> IsUserPermittedAsync(int orgId, int empId, int performanceReviewId, int userId)

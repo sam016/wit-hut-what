@@ -5,6 +5,8 @@ namespace Org.ERM.WebApi.Models.Dtos
 {
     public class PerformanceReviewDto : BaseEntityDto
     {
-        public int EmployeeId { get; set; }
+        public BaseEntityDto Employee { get; set; }
+
+        public BaseEntityDto Organization { get; set; }
     }
 }

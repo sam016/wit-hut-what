@@ -14,6 +14,7 @@ namespace Org.ERM.WebApi.Persistence.Repositories
         // public abstract BuildModel(ModelBuilder modelBuilder);
         Task CreateAsync(T entity);
         Task<T> GetByIdAsync(int id);
+        Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(Func<T, bool> q);
         Task UpdateAsync(T entity);
@@ -42,6 +43,12 @@ namespace Org.ERM.WebApi.Persistence.Repositories
         public async Task<T> GetByIdAsync(int id)
         {
             return await DBSet.FindAsync(id);
+        }
+
+        public Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            // TODO: make me async
+            return Task.FromResult(DBSet.Where(item => ids.Contains(item.Id)).AsEnumerable<T>());
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

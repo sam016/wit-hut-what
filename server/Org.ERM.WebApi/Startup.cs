@@ -91,6 +91,8 @@ namespace Org.ERM.WebApi
                 c.RoutePrefix = "swagger";
             });
 
+            app.ConfigureExceptionHandler();
+
             // app.UseHttpsRedirection();
 
             app.UseRouting();
