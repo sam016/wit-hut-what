@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { PerformanceReviewModel, EmployeeModel } from 'app/models';
-import { Row, Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 
 export namespace PerformanceReviewCreate {
   export interface Props {
     item: PerformanceReviewModel,
     error?: string,
     disabled?: boolean,
-    onSave: React.MouseEventHandler<HTMLElement>;
+    onSave: React.FormEventHandler<HTMLElement>;
+    onCancel: React.MouseEventHandler<HTMLElement>;
     employees: Array<EmployeeModel>;
   }
 
@@ -37,9 +38,9 @@ export class PerformanceReviewCreate extends React.Component<PerformanceReviewCr
   constructor(props: PerformanceReviewCreate.Props, context?: any) {
     super(props, context);
 
-    this.setState({
+    this.state = {
       disabled: props.disabled || false,
-    })
+    };
   }
 
   componentWillReceiveProps(props: PerformanceReviewCreate.Props) {
@@ -49,40 +50,55 @@ export class PerformanceReviewCreate extends React.Component<PerformanceReviewCr
     }
   }
 
-  handleInputChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-
+  handleInputChange(key: string, event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { item } = this.props;
+    if (key === 'employeeId') {
+      item.employee.id = parseInt(event.target.value);
+    } else if (key === 'title') {
+      item.name = event.target.value;
+    }
   }
 
-  handleFormSubmit(event: React.FormEvent) {
-
+  handleFormSubmit(event: React.FormEvent<HTMLElement>) {
+    const { item } = this.props;
+    event.preventDefault();
+    if (item.employee.id && item.name) {
+      this.props.onSave(event);
+    }
   }
 
   render() {
-    const { item, disabled, error, employees, onSave } = this.props;
+    const { disabled, error, employees, onCancel } = this.props;
 
     return (
-      <Row className={'performance-review-item performance-review-create'} >
-        <h4>{item.name} </h4>
+      <div className={'performance-review-item performance-review-create'} >
         <Form>
-          <Form.Group controlId="formEmployee">
-            <Form.Label>Employee</Form.Label>
-            <select
-              onChange={this.handleInputChange.bind(this)}
-              disabled={disabled}>
+          <div className="input-group mb-3">
+            <select className="custom-select"
+              onChange={this.handleInputChange.bind(this, 'employeeId')}
+              disabled={disabled}
+            >
               {employees.map((employee, index) => (<option key={employee.id} value={employee.id}>{employee.name}</option>))}
             </select>
-          </Form.Group>
+          </div>
 
           <Form.Group controlId="formPerformanceReviewTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control type="text" placeholder="Performance Review Title" onChange={this.handleInputChange.bind(this)}
+            <Form.Control type="text" placeholder="Review Title"
+              onChange={this.handleInputChange.bind(this, 'title')}
+              required
               disabled={disabled} />
           </Form.Group>
 
           <Button variant="primary" type="submit"
-            onClick={onSave.bind(this)}
+            onClick={this.handleFormSubmit.bind(this)}
             disabled={disabled}>
             Submit
+          </Button>
+          <Button variant="danger"
+            className={'float-right'}
+            onClick={onCancel}
+            disabled={disabled}>
+            Cancel
           </Button>
           {
             error ?
@@ -91,7 +107,7 @@ export class PerformanceReviewCreate extends React.Component<PerformanceReviewCr
               </Alert>) : null
           }
         </Form>
-      </Row>
+      </div>
     );
   }
 }

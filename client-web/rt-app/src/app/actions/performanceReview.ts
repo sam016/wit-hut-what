@@ -13,9 +13,17 @@ export namespace PerformanceReviews {
     GET_BY_ID_REQUEST = 'GET_PERFORMANCE_REVIEW_BY_ID_REQUEST',
     GET_BY_ID_SUCCESS = 'GET_PERFORMANCE_REVIEW_BY_ID_SUCCESS',
 
-    GET_ALL_ERROR = 'GET_ALL_PERFORMANCE_REVIEWS_ERROR',
-    GET_ALL_REQUEST = 'GET_ALL_PERFORMANCE_REVIEWS_REQUEST',
-    GET_ALL_SUCCESS = 'GET_ALL_PERFORMANCE_REVIEWS_SUCCESS',
+    GET_ALL_IN_ORG_ERROR = 'GET_ALL_IN_ORG_PERFORMANCE_REVIEWS_ERROR',
+    GET_ALL_IN_ORG_REQUEST = 'GET_ALL_IN_ORG_PERFORMANCE_REVIEWS_REQUEST',
+    GET_ALL_IN_ORG_SUCCESS = 'GET_ALL_IN_ORG_PERFORMANCE_REVIEWS_SUCCESS',
+
+    GET_ALL_OF_EMP_ERROR = 'GET_ALL_OF_EMP_PERFORMANCE_REVIEWS_ERROR',
+    GET_ALL_OF_EMP_REQUEST = 'GET_ALL_OF_EMP_PERFORMANCE_REVIEWS_REQUEST',
+    GET_ALL_OF_EMP_SUCCESS = 'GET_ALL_OF_EMP_PERFORMANCE_REVIEWS_SUCCESS',
+
+    GET_ALL_FOR_EMP_ERROR = 'GET_ALL_FOR_EMP_PERFORMANCE_REVIEWS_ERROR',
+    GET_ALL_FOR_EMP_REQUEST = 'GET_ALL_FOR_EMP_PERFORMANCE_REVIEWS_REQUEST',
+    GET_ALL_FOR_EMP_SUCCESS = 'GET_ALL_FOR_EMP_PERFORMANCE_REVIEWS_SUCCESS',
 
     PERMIT_EMP_ERROR = 'PERMIT_EMP_PERFORMANCE_REVIEW_ERROR',
     PERMIT_EMP_REQUEST = 'PERMIT_EMP_PERFORMANCE_REVIEW_REQUEST',
@@ -28,7 +36,9 @@ export namespace PerformanceReviews {
 
   export const Urls = {
     create: '/organizations/{orgId}/employees/{empId}/performance-reviews',
-    getAll: '/organizations/{orgId}/employees/{empId}/performance-reviews',
+    getAllInOrg: '/organizations/{orgId}/performance-reviews',
+    getAllOfEmp: '/organizations/{orgId}/employees/{empId}/performance-reviews',
+    getAllForEmp: '/organizations/{orgId}/employees/{empId}/permitted/performance-reviews',
     getById: '/organizations/{orgId}/employees/{empId}/performance-reviews/{id}',
     update: '/organizations/{orgId}/employees/{empId}/performance-reviews/{id}',
   }
@@ -48,9 +58,17 @@ export namespace PerformanceReviews {
   export const getByIdSuccess = createAction<PerformanceReviewModel>(Type.GET_BY_ID_SUCCESS);
   export const getByIdError = createAction<'error'>(Type.GET_BY_ID_ERROR);
 
-  export const getAllRequest = createAction<Pick<PerformanceReviewRequest, 'organizationId' | 'employeeId'>>(Type.GET_ALL_REQUEST);
-  export const getAllSuccess = createAction<Array<PerformanceReviewModel>>(Type.GET_ALL_SUCCESS);
-  export const getAllError = createAction<'error'>(Type.GET_ALL_ERROR);
+  export const getAllInOrgRequest = createAction<Pick<PerformanceReviewRequest, 'organizationId'>>(Type.GET_ALL_IN_ORG_REQUEST);
+  export const getAllInOrgSuccess = createAction<Array<PerformanceReviewModel>>(Type.GET_ALL_IN_ORG_SUCCESS);
+  export const getAllInOrgError = createAction<'error'>(Type.GET_ALL_IN_ORG_ERROR);
+
+  export const getAllOfEmpRequest = createAction<Pick<PerformanceReviewRequest, 'organizationId' | 'employeeId'>>(Type.GET_ALL_OF_EMP_REQUEST);
+  export const getAllOfEmpSuccess = createAction<Array<PerformanceReviewModel>>(Type.GET_ALL_OF_EMP_SUCCESS);
+  export const getAllOfEmpError = createAction<'error'>(Type.GET_ALL_OF_EMP_ERROR);
+
+  export const getAllForEmpRequest = createAction<Pick<PerformanceReviewRequest, 'organizationId' | 'employeeId'>>(Type.GET_ALL_FOR_EMP_REQUEST);
+  export const getAllForEmpSuccess = createAction<Array<PerformanceReviewModel>>(Type.GET_ALL_FOR_EMP_SUCCESS);
+  export const getAllForEmpError = createAction<'error'>(Type.GET_ALL_FOR_EMP_ERROR);
 
   export const permitEmployeeRequest = createAction<Pick<PerformanceReviewRequest, 'organizationId' | 'employeeId' | 'id'>>(Type.PERMIT_EMP_REQUEST);
   export const permitEmployeeSuccess = createAction<BaseModel>(Type.PERMIT_EMP_SUCCESS);

@@ -3,7 +3,7 @@ import { Employees as EmployeesActions } from "../actions/employee";
 import { GET, POST } from "./fetch";
 import { EmployeeModel } from "app/models";
 
-export const getAllEmployee = (orgId: number) => ((dispatch: Dispatch) => {
+export const getAllEmployees: getAllEmployeesFunc = (orgId: number) => ((dispatch: Dispatch) => {
   dispatch(EmployeesActions.getAllRequest({ organizationId: orgId }));
 
   const url = EmployeesActions.Urls.getAll.replace('{orgId}', orgId.toString());
@@ -17,7 +17,7 @@ export const getAllEmployee = (orgId: number) => ((dispatch: Dispatch) => {
     });
 });
 
-export const getEmployeeById = (orgId: number, empId: number) => ((dispatch: Dispatch) => {
+export const getEmployeeById: getEmployeeByIdFunc = (orgId: number, empId: number) => ((dispatch: Dispatch) => {
   dispatch(EmployeesActions.getByIdRequest({ organizationId: orgId, id: empId }));
 
   const url = EmployeesActions.Urls.getById
@@ -33,7 +33,7 @@ export const getEmployeeById = (orgId: number, empId: number) => ((dispatch: Dis
     });
 });
 
-export const createEmployee = (orgId: number, name: string, email: string, password: string) => ((dispatch: Dispatch) => {
+export const createEmployee: createEmployeeFunc = (orgId: number, name: string, email: string, password: string) => ((dispatch: Dispatch) => {
   dispatch(EmployeesActions.createRequest({
     organizationId: orgId,
     name: name,
@@ -58,3 +58,7 @@ export const createEmployee = (orgId: number, name: string, email: string, passw
       dispatch(EmployeesActions.createError(error));
     });
 });
+
+export type getAllEmployeesFunc = (orgId: number) => void;
+export type getEmployeeByIdFunc = (orgId: number, empId: number) => void;
+export type createEmployeeFunc = (orgId: number, name: string, email: string, password: string) => void;

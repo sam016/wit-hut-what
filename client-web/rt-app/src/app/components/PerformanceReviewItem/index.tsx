@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PerformanceReviewModel } from 'app/models';
-import { Row } from 'react-bootstrap';
+import './style.scss'
 
 export namespace PerformanceReviewItem {
   export interface Props {
@@ -36,10 +36,12 @@ export class PerformanceReviewItem extends React.Component<PerformanceReviewItem
     const { item, isSelected, onSelect } = this.props;
 
     return (
-      <Row className={'performance-review-item ' + (isSelected ? 'selected' : '')} onClick={onSelect} >
-        <h4>{item.name} </h4>
-        <div> </div>
-      </Row>
+      <div className={'performance-review-item ' + (isSelected ? 'selected' : '')} onClick={onSelect} >
+        <div className="review-title">
+          <span>{item.name}</span>
+        </div>
+        <div className="review-emp">{item.employee && item.employee.name} </div>
+      </div>
     );
   }
 }

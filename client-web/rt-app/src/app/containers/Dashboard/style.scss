@@ -1,17 +1,23 @@
+@import "../../index.scss";
+
 .dashboard {
   margin-top: 2em;
   > .dashboard-header {
-    color: indigo;
-    border-bottom: 3px solid indigo;
+    color: $color-primary;
+    border-bottom: 3px solid $color-primary;
     padding-bottom: 1em;
     > .site-info {
-      color: purple;
+      color: $color-primary;
     }
   }
   > .dashboard-body {
     margin-top: 1em;
     > .performance-reviews-list-container {
-      border-right: 2px solid #aaa;
+      border-right: 2px solid #eee;
+
+      > .row > .col > .header {
+        color: $color-primary;
+      }
     }
   }
 }

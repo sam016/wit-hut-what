@@ -1,0 +1,39 @@
+@import "../../index.scss";
+
+.performance-review-item {
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+
+  & + & {
+    border-top: 1px solid #aaa;
+  }
+
+  &.selected {
+    color: $color-primary;
+    &::after{
+      content: ' ';
+      position: absolute;
+      top:1em;
+      right:-1em;
+      height:1em;
+      width: 1em;
+      background-image: url("./Arrow-Right-2-icon.png");
+      background-position: right;
+      background-repeat: no-repeat;
+      background-size: 1em;
+      opacity: 0.5;
+    }
+  }
+
+  &:hover {
+    color: $color-secondary;
+  }
+
+  .review-title {
+  }
+
+  .review-emp {
+    font-size: 0.6em;
+  }
+}

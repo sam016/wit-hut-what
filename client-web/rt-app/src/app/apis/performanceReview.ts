@@ -3,26 +3,43 @@ import { PerformanceReviews as PerformanceReviewsActions } from "../actions/perf
 import { GET, POST } from "./fetch";
 import { PerformanceReviewModel } from "app/models";
 
-export const getAllPerformanceReviews = (orgId: number, empId: number) => ((dispatch: Dispatch) => {
-  dispatch(PerformanceReviewsActions.getAllRequest({
+export const getAllPerformanceReviewsInOrg: getAllPerformanceReviewsInOrgFunc = (orgId: number) => ((dispatch: Dispatch) => {
+  dispatch(PerformanceReviewsActions.getAllInOrgRequest({
+    organizationId: orgId,
+  }));
+
+  const url = PerformanceReviewsActions.Urls.getAllInOrg
+    .replace('{orgId}', orgId.toString());
+
+  GET<Array<PerformanceReviewModel>>({ url })
+    .then(performanceReviews => {
+      dispatch(PerformanceReviewsActions.getAllInOrgSuccess(performanceReviews));
+    })
+    .catch(error => {
+      dispatch(PerformanceReviewsActions.getAllInOrgError(error));
+    });
+});
+
+export const getAllPerformanceReviewsForEmp: getAllPerformanceReviewsForEmpFunc = (orgId: number, empId: number) => ((dispatch: Dispatch) => {
+  dispatch(PerformanceReviewsActions.getAllForEmpRequest({
     organizationId: orgId,
     employeeId: empId,
   }));
 
-  const url = PerformanceReviewsActions.Urls.getAll
+  const url = PerformanceReviewsActions.Urls.getAllForEmp
     .replace('{orgId}', orgId.toString())
     .replace('{empId}', empId.toString());
 
   GET<Array<PerformanceReviewModel>>({ url })
     .then(performanceReviews => {
-      dispatch(PerformanceReviewsActions.getAllSuccess(performanceReviews));
+      dispatch(PerformanceReviewsActions.getAllForEmpSuccess(performanceReviews));
     })
     .catch(error => {
-      dispatch(PerformanceReviewsActions.getAllError(error));
+      dispatch(PerformanceReviewsActions.getAllForEmpError(error));
     });
 });
 
-export const getPerformanceReviewById = (orgId: number, empId: number, id: number) => ((dispatch: Dispatch) => {
+export const getPerformanceReviewById: getByIdPerformanceReviewFunc = (orgId: number, empId: number, id: number) => ((dispatch: Dispatch) => {
   dispatch(PerformanceReviewsActions.getByIdRequest({
     organizationId: orgId,
     employeeId: empId,
@@ -64,4 +81,8 @@ export const createPerformanceReview: createPerformanceReviewFunc = (performance
     });
 });
 
+export type getAllPerformanceReviewsInOrgFunc = (orgId: number) => void;
+export type getAllPerformanceReviewsForEmpFunc = (orgId: number, empId: number) => void;
+export type getAllPerformanceReviewsOfEmpFunc = (orgId: number, empId: number) => void;
+export type getByIdPerformanceReviewFunc = (orgId: number, empId: number, id: number) => void;
 export type createPerformanceReviewFunc = (performanceReview: PerformanceReviewModel) => void;
