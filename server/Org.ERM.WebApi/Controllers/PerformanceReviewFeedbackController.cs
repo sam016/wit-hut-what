@@ -90,21 +90,10 @@ namespace Org.ERM.WebApi.Controllers
             var userId = AuthenticationService.GetLoggedInUserId();
             var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
 
-            IEnumerable<PerformanceReviewFeedback> performanceReviews;
-
-            // logged in user is PerformanceReviewFeedback && requested user id is different
-            if (userRole == UserRole.Employee)
-            {
-                performanceReviews = await PerformanceReviewFeedbackRepository.GetAllAsync(orgId, userId);
-            }
-            else if (userRole == UserRole.Admin)
-            {
-                performanceReviews = await PerformanceReviewFeedbackRepository.GetAllAsync(e => e.OrganizationId == userOrgId);
-            }
-            else
-            {
-                performanceReviews = await PerformanceReviewFeedbackRepository.GetAllAsync();
-            }
+            var performanceReviews = await PerformanceReviewFeedbackRepository
+                .GetAllAsync(e => e.OrganizationId == orgId
+                                  && e.ForEmployeeId == empId
+                                  && e.PerformanceReviewId == performanceReviewId);
 
             var performanceReviewsDto = performanceReviews.Select(org => Mapper.Map<PerformanceReviewFeedbackDto>(org));
 

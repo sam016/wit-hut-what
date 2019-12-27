@@ -123,7 +123,7 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
         private async Task<PerformanceReviewACL> GetPerformanceReviewACLAsync(int performanceReviewId, int userId)
         {
-            return await DBContext.PerformanceReviewACL.FindAsync(new { PerformanceReviewId = performanceReviewId, EmployeeId = userId });
+            return await DBContext.PerformanceReviewACL.FindAsync(performanceReviewId, userId);
         }
     }
 }

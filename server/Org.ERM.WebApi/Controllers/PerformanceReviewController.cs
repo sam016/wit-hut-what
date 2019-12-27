@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Org.ERM.WebApi.Enums;
+using Org.ERM.WebApi.Exceptions;
 using Org.ERM.WebApi.Models.Dtos;
 using Org.ERM.WebApi.Models.Requests.PerformanceReview;
 using Org.ERM.WebApi.Models.Domain;
@@ -21,10 +22,11 @@ namespace Org.ERM.WebApi.Controllers
     [Route("organizations/{orgId}/employees/{empId}/performance-reviews")]
     public class PerformanceReviewController : BaseController
     {
-        private readonly IPerformanceReviewRepository PerformanceReviewRepository;
         private readonly IAuthenticationService AuthenticationService;
-        private readonly IOrganizationRepository OrganizationRepository;
         private readonly IEmployeeRepository EmployeeRepository;
+        private readonly IOrganizationRepository OrganizationRepository;
+        private readonly IPerformanceReviewFeedbackRepository PerformanceReviewFeedbackRepository;
+        private readonly IPerformanceReviewRepository PerformanceReviewRepository;
 
         public PerformanceReviewController(
             ILogger<PerformanceReviewController> logger,
@@ -32,13 +34,17 @@ namespace Org.ERM.WebApi.Controllers
             IAuthenticationService authenticationService,
             IOrganizationRepository organizationRepository,
             IEmployeeRepository employeeRepository,
-            IPerformanceReviewRepository performanceReviewRepository) : base(logger, mapper)
+            IPerformanceReviewRepository performanceReviewRepository,
+            IPerformanceReviewFeedbackRepository performanceReviewFeedbackRepository) : base(logger, mapper)
         {
             PerformanceReviewRepository = performanceReviewRepository;
             AuthenticationService = authenticationService;
             OrganizationRepository = organizationRepository;
             EmployeeRepository = employeeRepository;
+            PerformanceReviewFeedbackRepository = performanceReviewFeedbackRepository;
         }
+
+        #region CRUD
 
         [HttpPost("")]
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -60,8 +66,6 @@ namespace Org.ERM.WebApi.Controllers
                 OrganizationId = orgId,
                 EmployeeId = empId,
             };
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
 
             await PerformanceReviewRepository.CreateAsync(performanceReview);
 
@@ -136,6 +140,8 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewDto);
         }
 
+        #endregion CRUD
+
         #region ACL
 
         [HttpGet("/organizations/{orgId}/employees/{empId}/permitted/performance-reviews")]
@@ -177,20 +183,12 @@ namespace Org.ERM.WebApi.Controllers
                 performanceReviews = await PerformanceReviewRepository.GetAllPermittedAsync(orgId, empId);
             }
 
-            var empIds = performanceReviews.Select(pr => pr.EmployeeId);
-
-            var employees = await EmployeeRepository.GetByIdsAsync(empIds);
-            var mapEmployees = employees.ToDictionary(e => e.Id, e => e);
-            var orgDto = new BaseEntityDto(orgId, organization.Name);
-
             var performanceReviewDtos = performanceReviews.Select(pr => new PerformanceReviewDto
             {
                 Id = pr.Id,
                 Name = pr.Name,
-                Employee = (mapEmployees.ContainsKey(pr.EmployeeId)
-                            ? new BaseEntityDto(pr.EmployeeId, mapEmployees[pr.EmployeeId].Name)
-                            : null),
-                Organization = orgDto,
+                EmployeeId = pr.EmployeeId,
+                OrganizationId = orgId,
             });
 
             return Ok(performanceReviewDtos);
@@ -198,7 +196,7 @@ namespace Org.ERM.WebApi.Controllers
 
         [HttpPost("/organizations/{orgId}/employees/{empId}/permit/performance-reviews/{performanceReviewId}")]
         [Authorize(Roles = "SuperAdmin,Admin")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewFeedbackDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> PermitAsync([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId)
         {
@@ -209,9 +207,26 @@ namespace Org.ERM.WebApi.Controllers
                 return NotFound();
             }
 
+            if (performanceReview.EmployeeId==empId ){
+                throw new BadRequestException("Can't allow employee to provide feedback for himself/herself");
+            }
+
             if (await PerformanceReviewRepository.PermitAsync(performanceReviewId, empId))
             {
-                return Ok();
+                var performanceReviewFeedback = new PerformanceReviewFeedback()
+                {
+                    Name = "",
+                    ForEmployeeId = performanceReview.EmployeeId,
+                    FromEmployeeId = empId,
+                    OrganizationId = orgId,
+                    PerformanceReviewId = performanceReviewId,
+                };
+
+                await PerformanceReviewFeedbackRepository.CreateAsync(performanceReviewFeedback);
+
+                var performanceReviewFeedbackDto = this.Mapper.Map<PerformanceReviewFeedbackDto>(performanceReviewFeedback);
+
+                return Ok(performanceReviewFeedbackDto);
             }
 
             return BadRequest();

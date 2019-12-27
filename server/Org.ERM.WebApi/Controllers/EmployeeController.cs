@@ -95,6 +95,8 @@ namespace Org.ERM.WebApi.Controllers
                 employees = await EmployeeRepository.GetAllAsync();
             }
 
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
             var employeesDto = employees.Select(org => Mapper.Map<EmployeeDto>(org));
 
             return Ok(employeesDto);
