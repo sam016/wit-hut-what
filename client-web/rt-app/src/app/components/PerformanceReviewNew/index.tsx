@@ -20,16 +20,15 @@ export namespace PerformanceReviewCreate {
 export class PerformanceReviewCreate extends React.Component<PerformanceReviewCreate.Props, PerformanceReviewCreate.State> {
   static defaultProps: Partial<PerformanceReviewCreate.Props> = {
     item: {
-      employee: {
-        id: 0,
-        name: '',
-      },
       id: 0,
       name: '',
-      organization: {
-        id: 0,
-        name: '',
-      },
+      employeeId: 0,
+      employeeName: '',
+      organizationId: 0,
+      organizationName: '',
+      permittedEmployees: [],
+      feedbacks: [],
+      isLoadingFeedbacks: false,
       createdAt: new Date(0),
     },
     employees: [],
@@ -53,7 +52,7 @@ export class PerformanceReviewCreate extends React.Component<PerformanceReviewCr
   handleInputChange(key: string, event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { item } = this.props;
     if (key === 'employeeId') {
-      item.employee.id = parseInt(event.target.value);
+      item.employeeId = parseInt(event.target.value);
     } else if (key === 'title') {
       item.name = event.target.value;
     }
@@ -62,7 +61,7 @@ export class PerformanceReviewCreate extends React.Component<PerformanceReviewCr
   handleFormSubmit(event: React.FormEvent<HTMLElement>) {
     const { item } = this.props;
     event.preventDefault();
-    if (item.employee.id && item.name) {
+    if (item.employeeId && item.name) {
       this.props.onSave(event);
     }
   }

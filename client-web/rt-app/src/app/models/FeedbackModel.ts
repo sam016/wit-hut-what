@@ -1,8 +1,14 @@
 import { BaseModel } from "./BaseModel";
 
 export interface FeedbackModel extends BaseModel {
-  employee: BaseModel;
-  performanceReview: BaseModel;
+  forEmployeeId: number;
+  forEmployeeName: string;
+  fromEmployeeId: number;
+  fromEmployeeName: string;
+  performanceReviewId: number;
+  performanceReviewName: string;
+  organizationId: number;
+  organizationName: string;
   comment: string;
   rating: FeedbackModel.Rating;
 }

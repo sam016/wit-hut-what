@@ -6,7 +6,7 @@ import Container from 'react-bootstrap/Container';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 import { RouteComponentProps } from 'react-router';
-import * as AuthApis from 'app/apis/auth';
+import * as AuthApis from 'app/apis/auth.api';
 import { RootState } from 'app/reducers';
 import { TodoModel } from 'app/models';
 import { Col, Row } from 'react-bootstrap';

@@ -1,20 +1,21 @@
 import * as React from 'react';
-// import * as style from './style.css';
 import Container from 'react-bootstrap/Container';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 import { RouteComponentProps } from 'react-router';
-// import { AuthActions } from 'app/actions';
-import * as AuthApis from 'app/apis/auth';
-import * as PerformanceReviewApis from 'app/apis/performanceReview';
-import * as EmployeeApis from 'app/apis/employee';
+import * as AuthApis from 'app/apis/auth.api';
+import * as PerformanceReviewApis from 'app/apis/performanceReview.api';
+import * as EmployeeApis from 'app/apis/employee.api';
+import * as FeedbackApis from 'app/apis/feedback.api';
 import { RootState } from 'app/reducers';
-import { Row, Col, Button } from 'react-bootstrap';
+import { Row, Col, Button, InputGroup } from 'react-bootstrap';
 import { ProfilePill } from 'app/components/ProfilePill';
 import { PerformanceReviewList } from 'app/components/PerformanceReviewList';
-import './style.scss';
 import { PerformanceReviewCreate } from 'app/components/PerformanceReviewNew';
-import { PerformanceReviewModel } from 'app/models';
+import { PerformanceReviewModel, EmployeeModel } from 'app/models';
+import { FeedbackList } from 'app/components/FeedbackList';
+import { SelectEmployees } from 'app/components/SelectEmployees';
+import './style.scss';
 
 export namespace Dashboard {
   export interface Props extends RouteComponentProps<void> {
@@ -24,26 +25,34 @@ export namespace Dashboard {
       createPerformanceReview: PerformanceReviewApis.createPerformanceReviewFunc,
       getAllEmployees: EmployeeApis.getAllEmployeesFunc,
       getAllPerformanceReviews: PerformanceReviewApis.getAllPerformanceReviewsForEmpFunc,
+      permitEmployeeAccessToFeedback: PerformanceReviewApis.permitEmployeeAccessFunc,
+      revokeEmployeeAccessToFeedback: PerformanceReviewApis.revokeEmployeeAccessFunc,
+      getAllPerformanceReviewFeedback: FeedbackApis.getAllFeedbacksFunc,
+      updatePerformanceReviewFeedback: FeedbackApis.updateFeedbackFunc
     };
     performanceReviews: RootState.PerformanceReviewState,
     employees: RootState.EmployeeState,
+    feedbacks: RootState.FeedbackState,
   }
 
   export interface State {
     creatingNewPerformanceReview: boolean;
-    newPerformanceReview: PerformanceReviewModel,
-    selectedPerformanceReview?: PerformanceReviewModel,
-    loadingPerformanceReviews: boolean,
-    loadingEmployees: boolean,
+    loadingEmployees: boolean;
+    loadingPerformanceReviews: boolean;
+    loadingFeedbacks: boolean,
+    newPerformanceReview: PerformanceReviewModel;
+    selectedNewEmployeeForFeedback?: EmployeeModel;
+    selectedPerformanceReview?: PerformanceReviewModel;
   }
 }
 
 @connect(
-  (state: RootState): Pick<Dashboard.Props, 'auth' | 'performanceReviews' | 'employees'> => {
+  (state: RootState): Pick<Dashboard.Props, 'auth' | 'performanceReviews' | 'employees' | 'feedbacks'> => {
     return {
       auth: state.auth,
       performanceReviews: state.performanceReviews,
       employees: state.employees,
+      feedbacks: state.feedbacks,
     };
   },
   (dispatch: Dispatch): Pick<Dashboard.Props, 'actions'> => ({
@@ -52,6 +61,10 @@ export namespace Dashboard {
       createPerformanceReview: PerformanceReviewApis.createPerformanceReview,
       getAllEmployees: EmployeeApis.getAllEmployees,
       getAllPerformanceReviews: PerformanceReviewApis.getAllPerformanceReviewsForEmp,
+      permitEmployeeAccessToFeedback: PerformanceReviewApis.permitEmployeeAccess,
+      revokeEmployeeAccessToFeedback: PerformanceReviewApis.revokeEmployeeAccess,
+      getAllPerformanceReviewFeedback: FeedbackApis.getAllFeedbacks,
+      updatePerformanceReviewFeedback: FeedbackApis.updateFeedback,
     }, dispatch),
   })
 )
@@ -66,6 +79,7 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
       newPerformanceReview: this.getNewPerformanceReview(props),
       loadingPerformanceReviews: false,
       loadingEmployees: false,
+      loadingFeedbacks: false,
     }
   }
 
@@ -89,15 +103,29 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
 
     if (props.employees.isLoading != this.state.loadingEmployees) {
       newState.loadingEmployees = props.employees.isLoading;
+      if (!newState.loadingEmployees) {
+        this.updateSelectedEmployeeForFeedback();
+      }
+    }
+
+    if (this.state.loadingFeedbacks !== props.feedbacks.isLoading) {
+      newState.loadingFeedbacks = props.feedbacks.isLoading;
+      if (!newState.loadingFeedbacks) {
+        this.updateSelectedEmployeeForFeedback();
+      }
     }
 
     this.setState(newState);
   }
 
   componentDidMount() {
-    const orgId = (this.props.auth.data && this.props.auth.data.organizationId) || 0;
-    const empId = (this.props.auth.data && this.props.auth.data.id) || 0;
+    if (!this.props.auth.data) {
+      return;
+    }
+    const orgId = this.props.auth.data.organizationId;
+    const empId = this.props.auth.data.id;
     this.props.actions.getAllPerformanceReviews(orgId, empId);
+    this.props.actions.getAllEmployees(orgId);
   }
 
   getNewPerformanceReview(props: Dashboard.Props): PerformanceReviewModel {
@@ -105,14 +133,13 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
       id: 0,
       name: '',
       createdAt: new Date(0),
-      organization: {
-        id: (props.auth.data && props.auth.data.organizationId) || 0,
-        name: '',
-      },
-      employee: {
-        id: 0,
-        name: '',
-      },
+      organizationId: (props.auth.data && props.auth.data.organizationId) || 0,
+      organizationName: '',
+      employeeId: 0,
+      employeeName: '',
+      permittedEmployees: [],
+      feedbacks: [],
+      isLoadingFeedbacks: false,
     }
   }
 
@@ -125,17 +152,40 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
     if (!item) {
       return;
     }
-    this.setState({ selectedPerformanceReview: item });
+    this.props.actions.getAllPerformanceReviewFeedback(item);
+    this.setState({
+      selectedPerformanceReview: item,
+      // loadingFeedbacks: true,
+    });
+  }
+
+  updateSelectedEmployeeForFeedback() {
+    const { selectedPerformanceReview, selectedNewEmployeeForFeedback } = this.state;
+
+    console.log('--updateSelectedEmployeeForFeedback');
+
+    if (!selectedPerformanceReview) {
+      return;
+    }
+
+    // debugger;
+
+    const empsInFeedbacks = selectedPerformanceReview.feedbacks.map(f => f.fromEmployeeId);
+
+    const filteredEmployees = this.props.employees.data
+      .filter(emp => empsInFeedbacks.indexOf(emp.id) < 0 && selectedPerformanceReview.employeeId !== emp.id);
+
+    if (filteredEmployees.length
+      && (!selectedNewEmployeeForFeedback || filteredEmployees.indexOf(selectedNewEmployeeForFeedback) < 0)) {
+      this.setState({ selectedNewEmployeeForFeedback: filteredEmployees[0] });
+    }
   }
 
   handleNewPerformanceReview() {
-    const organizationId = (this.props.auth.data && this.props.auth.data.organizationId) || 0;
-
     this.setState({
       creatingNewPerformanceReview: true,
-      newPerformanceReview: this.getNewPerformanceReview(this.props)
+      newPerformanceReview: this.getNewPerformanceReview(this.props),
     });
-    this.props.actions.getAllEmployees(organizationId);
   }
 
   handlePerformanceReviewSave() {
@@ -145,6 +195,37 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
 
   handlePerformanceReviewCancel() {
     this.setState({ creatingNewPerformanceReview: false });
+  }
+
+  handleFeedbackNewEmployee(event: React.ChangeEvent<HTMLElement>, item: EmployeeModel) {
+    console.log('--selectedNewEmployeeForFeedback', JSON.stringify(item, null, 2));
+    this.setState({
+      selectedNewEmployeeForFeedback: item,
+    })
+  }
+
+  handleAllowEmployee() {
+    if (!this.props.auth.data) {
+      return;
+    }
+
+    const { selectedNewEmployeeForFeedback, selectedPerformanceReview } = this.state;
+
+    // debugger;
+
+    if (!selectedNewEmployeeForFeedback || !selectedPerformanceReview) {
+      return;
+    }
+
+    console.log('--selectedNewEmployeeForFeedback', JSON.stringify(selectedNewEmployeeForFeedback, null, 2));
+
+    const { organizationId } = this.props.auth.data;
+
+    this.props.actions.permitEmployeeAccessToFeedback(
+      organizationId,
+      selectedNewEmployeeForFeedback.id,
+      selectedPerformanceReview
+    );
   }
 
   renderHeader = () => (
@@ -165,7 +246,7 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
     const { creatingNewPerformanceReview, newPerformanceReview, selectedPerformanceReview } = this.state;
     const otherEmployees = employees.data.filter(emp => (emp.id !== (auth.data && auth.data.id) || 0));
 
-    newPerformanceReview.employee.id = otherEmployees.length ? otherEmployees[0].id : 0;
+    newPerformanceReview.employeeId = otherEmployees.length ? otherEmployees[0].id : 0;
 
     return (
       <Row>
@@ -198,6 +279,67 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
     )
   };
 
+  renderPerformanceReviewView = () => {
+    const { auth, employees } = this.props;
+    const {
+      selectedPerformanceReview: item,
+      loadingFeedbacks,
+    } = this.state;
+
+    if (!item) {
+      return <Row>
+        <Col>
+          <p className="msg-on-wall">
+            Select a Performance review
+          </p>
+        </Col>
+      </Row>
+    }
+
+    const empsInFeedbacks = item.feedbacks.map(f => f.fromEmployeeId);
+
+    const filteredEmployees = employees.data.filter(emp => empsInFeedbacks.indexOf(emp.id) < 0 && item.employeeId !== emp.id);
+
+    const areAdminFieldsDisabled = !filteredEmployees.length
+      || employees.isLoading
+      || loadingFeedbacks
+      || item.isLoadingFeedbacks;
+
+    return (<Row>
+      <Col className="performance-review-view-container">
+        <div className="header-container">
+          <div className="header">
+            {item.name}
+          </div>
+          <div className="header-info">
+            <span className="for-text cursive">for</span>
+            <span className="for-emp">
+              {item.employeeName}
+            </span>
+          </div>
+        </div>
+        {
+          auth.isAdmin
+            ? (<div>
+              <InputGroup>
+                <SelectEmployees items={filteredEmployees}
+                  disabled={areAdminFieldsDisabled}
+                  onSelect={this.handleFeedbackNewEmployee.bind(this)} />
+                <InputGroup.Append>
+                  <Button variant="primary"
+                    onClick={this.handleAllowEmployee.bind(this)}
+                    disabled={areAdminFieldsDisabled}
+                  >Allow Employee</Button>
+                </InputGroup.Append>
+              </InputGroup>
+            </div>)
+            : null
+        }
+        <FeedbackList items={item.feedbacks} isLoading={item.isLoadingFeedbacks} />
+      </Col>
+    </Row>);
+  };
+
   render() {
     return (
       <Container className={'dashboard'}>
@@ -207,10 +349,11 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
           </Col>
         </Row>
         <Row className={'dashboard-body'}>
-          <Col xs={5} sm={4} lg={3} className='performance-reviews-list-container'>
+          <Col xs={5} sm={5} lg={3} className='performance-reviews-list-container'>
             {this.renderPerformanceReviewList()}
           </Col>
-          <Col xs={7} sm={8} lg={9} >
+          <Col xs={7} sm={7} lg={9} >
+            {this.renderPerformanceReviewView()}
           </Col>
         </Row>
       </Container>

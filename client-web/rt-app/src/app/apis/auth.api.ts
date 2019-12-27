@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { AuthActions } from "../actions/auth";
+import { AuthActions } from "../actions/auth.actions";
 import { POST, GET } from "./fetch";
 import { AuthModel } from "app/models";
 

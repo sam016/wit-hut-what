@@ -38,7 +38,7 @@ export class ProfilePill extends React.Component<ProfilePill.Props> {
     const { auth, logout, isAdmin } = this.props;
     return (
       <div className={'profile-pill'}>
-        <span className={'user-greeting'}>Hello,</span> &nbsp;
+        <span className={'user-greeting cursive'}>Welcome,</span> &nbsp;
         <span className="user-info">
           <span className={'user-name'}>{auth.name}</span>
           {

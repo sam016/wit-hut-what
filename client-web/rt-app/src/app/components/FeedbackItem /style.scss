@@ -1,0 +1,49 @@
+@import "../../index.scss";
+
+.feedback-item {
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+  padding-top: 0.5em;
+
+  & + & {
+    margin-top: 0.5em;
+    border-top: $width-border-light solid $color-border-light;
+  }
+
+  &.selected {
+    color: $color-primary;
+  }
+
+  &:hover {
+    color: $color-secondary;
+  }
+  > .header {
+    margin-bottom: 0.2em;
+  }
+
+  .review-title {
+    display: inline-block;
+    font-size: 1.2em;
+    color: $color-primary;
+    > .pending {
+      color: orangered;
+    }
+  }
+
+  .review-comment {
+    > .pending {
+      color: lightcoral;
+    }
+  }
+
+  .review-from-emp {
+    display: inline-block;
+    font-size: 0.8em;
+    color: $color-primary;
+    > .cursive {
+      color: #777;
+      margin: 0 5px 0 10px;
+    }
+  }
+}

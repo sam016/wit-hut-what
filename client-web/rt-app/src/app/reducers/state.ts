@@ -5,7 +5,7 @@ export interface RootState {
   auth: RootState.AuthState;
   performanceReviews: RootState.PerformanceReviewState;
   employees: RootState.EmployeeState;
-  feedbackState: RootState.FeedbackState;
+  feedbacks: RootState.FeedbackState;
   router?: any;
 }
 
@@ -15,7 +15,12 @@ export namespace RootState {
   interface AjaxModelState<T> {
     data: T;
     isLoading: boolean;
+    counterLoading: number;
     error: string | null;
+  }
+
+  interface AjaxModelListState<T> extends AjaxModelState<Array<T>> {
+    map: Record<number, T>;
   }
 
   export interface AuthState extends AjaxModelState<AuthModel | null> {
@@ -24,14 +29,12 @@ export namespace RootState {
     isAdmin: boolean;
   };
 
-  export interface PerformanceReviewState extends AjaxModelState<Array<PerformanceReviewModel>> {
-    selected?: PerformanceReviewModel;
+  export interface PerformanceReviewState extends AjaxModelListState<PerformanceReviewModel> {
   };
 
-  export interface EmployeeState extends AjaxModelState<Array<EmployeeModel>> {
+  export interface EmployeeState extends AjaxModelListState<EmployeeModel> {
   };
 
-  export interface FeedbackState extends AjaxModelState<Array<FeedbackModel>> {
-    map: Record<number, FeedbackModel>
+  export interface FeedbackState extends AjaxModelListState<FeedbackModel> {
   };
 }

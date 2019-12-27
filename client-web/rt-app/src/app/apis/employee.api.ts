@@ -1,9 +1,12 @@
 import { Dispatch } from "redux";
-import { Employees as EmployeesActions } from "../actions/employee";
+import { Employees as EmployeesActions } from "../actions/employees.actions";
+import { PerformanceReviews as PerformanceReviewsActions } from "../actions/performanceReviews.actions";
+import { Feedbacks as FeedbacksActions } from "../actions/feedbacks.action";
 import { GET, POST } from "./fetch";
 import { EmployeeModel } from "app/models";
+import { RootState } from "app/reducers";
 
-export const getAllEmployees: getAllEmployeesFunc = (orgId: number) => ((dispatch: Dispatch) => {
+export const getAllEmployees: getAllEmployeesFunc = (orgId: number) => ((dispatch: Dispatch, getState: () => RootState) => {
   dispatch(EmployeesActions.getAllRequest({ organizationId: orgId }));
 
   const url = EmployeesActions.Urls.getAll.replace('{orgId}', orgId.toString());
@@ -11,6 +14,10 @@ export const getAllEmployees: getAllEmployeesFunc = (orgId: number) => ((dispatc
   GET<Array<EmployeeModel>>({ url })
     .then(employees => {
       dispatch(EmployeesActions.getAllSuccess(employees));
+
+      const mapEmployees = getState().employees.map;
+      dispatch(PerformanceReviewsActions.updateEmployeeNamesRequest(mapEmployees));
+      dispatch(FeedbacksActions.updateEmployeeNamesRequest(mapEmployees));
     })
     .catch(error => {
       dispatch(EmployeesActions.getAllError(error));

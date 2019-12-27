@@ -1,12 +1,14 @@
 import { handleActions } from 'redux-actions';
 import { RootState } from './state';
-import { Employees as EmployeeActions } from 'app/actions/employee';
+import { Employees as EmployeeActions } from 'app/actions/employees.actions';
 import { EmployeeModel } from 'app/models';
 
 const initialState: RootState.EmployeeState = {
   data: [],
   isLoading: false,
+  counterLoading: 0,
   error: null,
+  map: {},
 };
 
 export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeModel>(
@@ -15,6 +17,7 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
       return {
         ...state,
         isLoading: true,
+        counterLoading: state.counterLoading + 1,
         error: null,
       };
     },
@@ -22,7 +25,12 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
       if (Array.isArray(action.payload)) {
         return {
           data: action.payload,
-          isLoading: false,
+          map: action.payload.reduce((prev, item) => {
+            prev[item.id] = item;
+            return prev;
+          }, {}),
+          isLoading: (state.counterLoading > 1),
+          counterLoading: state.counterLoading - 1,
           error: null,
         };
       }
@@ -32,7 +40,8 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
       if (typeof action.payload === 'string') {
         return {
           ...state,
-          isLoading: false,
+          isLoading: (state.counterLoading > 1),
+          counterLoading: state.counterLoading - 1,
           error: action.payload,
         };
       }

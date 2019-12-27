@@ -13,16 +13,15 @@ export namespace PerformanceReviewItem {
 export class PerformanceReviewItem extends React.Component<PerformanceReviewItem.Props> {
   static defaultProps: Partial<PerformanceReviewItem.Props> = {
     item: {
-      employee: {
-        id: 0,
-        name: '',
-      },
       id: 0,
       name: '',
-      organization: {
-        id: 0,
-        name: '',
-      },
+      employeeId: 0,
+      employeeName: '',
+      organizationId: 0,
+      organizationName: '',
+      permittedEmployees: [],
+      feedbacks: [],
+      isLoadingFeedbacks: false,
       createdAt: new Date(0),
     },
     isSelected: false,
@@ -40,7 +39,7 @@ export class PerformanceReviewItem extends React.Component<PerformanceReviewItem
         <div className="review-title">
           <span>{item.name}</span>
         </div>
-        <div className="review-emp">{item.employee && item.employee.name} </div>
+        <div className="review-emp">{item.employeeName} </div>
       </div>
     );
   }

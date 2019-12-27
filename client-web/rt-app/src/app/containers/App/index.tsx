@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { RootState } from 'app/reducers';
 import { Login } from 'app/containers/Login';
 import { Dashboard } from 'app/containers/Dashboard';
-import * as AuthApis from 'app/apis/auth';
+import * as AuthApis from 'app/apis/auth.api';
 import { Dispatch, bindActionCreators } from 'redux';
 import './style.scss';
 import { AuthModel } from 'app/models';
@@ -39,6 +39,7 @@ export class App extends React.Component<App.Props> {
       email: '',
       password: '',
       error: null,
+      counterLoading: 0,
       isLoading: true,
       isAdmin: false,
     },

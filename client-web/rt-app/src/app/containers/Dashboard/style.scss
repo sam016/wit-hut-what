@@ -13,11 +13,45 @@
   > .dashboard-body {
     margin-top: 1em;
     > .performance-reviews-list-container {
-      border-right: 2px solid #eee;
+      border-right: $width-border-light solid $color-border-light;
 
       > .row > .col > .header {
         color: $color-primary;
       }
+    }
+
+    .performance-review-view-container {
+      > .header-container {
+        padding-bottom: 15px;
+        margin: 10px 5px;
+        border-bottom: $width-border-light solid $color-border-light;
+
+        > .header {
+          color: $color-primary;
+          font-size: 1.5em;
+          text-align: center;
+        }
+        > .header-info {
+          font-size: 0.8em;
+          text-align: center;
+
+          > .for-text {
+            color: #333;
+            margin-right: 5px;
+          }
+          > .for-emp {
+            color: $color-primary;
+          }
+        }
+      }
+    }
+
+    .msg-on-wall {
+      text-align: center;
+      color: #ddd;
+      font-size: 2em;
+      padding-top: 2em;
+      text-shadow: 0 0 2px #ccc;
     }
   }
 }

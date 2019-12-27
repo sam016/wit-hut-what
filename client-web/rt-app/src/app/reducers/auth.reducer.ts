@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions';
 import { RootState } from './state';
 // import { TodoActions } from 'app/actions/todos';
-import { AuthActions } from 'app/actions/auth';
+import { AuthActions } from 'app/actions/auth.actions';
 import { AuthModel } from 'app/models';
 
 const initialState: RootState.AuthState = {
@@ -12,6 +12,7 @@ const initialState: RootState.AuthState = {
     role: AuthModel.ROLE.EMPLOYEE,
     token: localStorage.getItem('auth:token') || '',
   },
+  counterLoading: 0, // don't care in auth
   isLoading: false,
   error: null,
   email: null,
@@ -67,6 +68,7 @@ export const authReducer = handleActions<RootState.AuthState, AuthModel | string
       return {
         data: null,
         isLoading: false,
+        counterLoading: 0,
         error: null,
         email: null,
         password: null,
