@@ -7,6 +7,7 @@ namespace Org.ERM.WebApi.Models.Dtos
     {
         public string Comment { get; set; }
         public int Rating { get; set; }
+        public int OrganizationId { get; set; }
         public int PerformanceReviewId { get; set; }
         public int FromEmployeeId { get; set; }
         public int ForEmployeeId { get; set; }

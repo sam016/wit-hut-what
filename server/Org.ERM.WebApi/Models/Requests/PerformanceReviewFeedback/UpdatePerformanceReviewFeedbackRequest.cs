@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Org.ERM.WebApi.Models.Requests.PerformanceReviewFeedback
 {
-    public class CreatePerformanceReviewFeedbackRequest
+    public class UpdatePerformanceReviewFeedbackRequest
     {
         [Required]
         [StringLength(100)]

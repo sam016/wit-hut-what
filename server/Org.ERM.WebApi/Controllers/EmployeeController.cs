@@ -82,20 +82,20 @@ namespace Org.ERM.WebApi.Controllers
             IEnumerable<Employee> employees;
 
             // logged in user is Employee && requested user id is different
-            if (userRole == UserRole.Employee)
-            {
-                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId && e.Id == userId);
-            }
-            else if (userRole == UserRole.Admin)
-            {
-                employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
-            }
-            else
-            {
-                employees = await EmployeeRepository.GetAllAsync();
-            }
+            // if (userRole == UserRole.Employee)
+            // {
+            //     employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId && e.Id == userId);
+            // }
+            // else if (userRole == UserRole.Admin)
+            // {
+            employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
+            // }
+            // else
+            // {
+            //     employees = await EmployeeRepository.GetAllAsync();
+            // }
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
+            // await Task.Delay(TimeSpan.FromSeconds(2));
 
             var employeesDto = employees.Select(org => Mapper.Map<EmployeeDto>(org));
 

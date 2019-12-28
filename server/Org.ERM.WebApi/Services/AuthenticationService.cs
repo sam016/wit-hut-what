@@ -72,6 +72,7 @@ namespace Org.ERM.WebApi.Services
                 Id = employee.Id,
                 Name = employee.Name,
                 Email = employee.Email,
+                OrganizationId = employee.OrganizationId,
                 Role = employee.Role,
                 Token = tokenHandler.WriteToken(token),
                 ExpiresAt = expiresAt,

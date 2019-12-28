@@ -90,14 +90,24 @@ namespace Org.ERM.WebApi.Controllers
             var userId = AuthenticationService.GetLoggedInUserId();
             var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
 
-            var performanceReviews = await PerformanceReviewFeedbackRepository
+            if ((userRole == Enums.UserRole.Admin || userRole == Enums.UserRole.Employee) && userOrgId != orgId)
+            {
+                return NotFound();
+            }
+
+            var performanceReviewFeedbacks = await PerformanceReviewFeedbackRepository
                 .GetAllAsync(e => e.OrganizationId == orgId
                                   && e.ForEmployeeId == empId
                                   && e.PerformanceReviewId == performanceReviewId);
 
-            var performanceReviewsDto = performanceReviews.Select(org => Mapper.Map<PerformanceReviewFeedbackDto>(org));
+            if (userRole == Enums.UserRole.Employee)
+            {
+                performanceReviewFeedbacks = performanceReviewFeedbacks.Where(f => f.FromEmployeeId == userId);
+            }
 
-            return Ok(performanceReviewsDto);
+            var performanceReviewFeedbacksDto = performanceReviewFeedbacks.Select(org => Mapper.Map<PerformanceReviewFeedbackDto>(org));
+
+            return Ok(performanceReviewFeedbacksDto);
         }
 
         [HttpGet("{id}")]
@@ -107,7 +117,7 @@ namespace Org.ERM.WebApi.Controllers
         {
             var performanceReviewFeedback = await PerformanceReviewFeedbackRepository.GetByIdAsync(id);
 
-            if (performanceReviewFeedback == null || CanUserAccessPerformanceReviewFeedback(performanceReviewFeedback))
+            if (performanceReviewFeedback == null || !CanUserAccessPerformanceReviewFeedback(performanceReviewFeedback))
             {
                 return NotFound();
             }
@@ -115,6 +125,28 @@ namespace Org.ERM.WebApi.Controllers
             var performanceReviewDto = Mapper.Map<PerformanceReviewFeedbackDto>(performanceReviewFeedback);
 
             return Ok(performanceReviewDto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewFeedbackDto))]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetById([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId, [FromRoute]int id, [FromBody]UpdatePerformanceReviewFeedbackRequest request)
+        {
+            var performanceReviewFeedback = await PerformanceReviewFeedbackRepository.GetByIdAsync(id);
+
+            if (performanceReviewFeedback == null || !CanUserAccessPerformanceReviewFeedback(performanceReviewFeedback))
+            {
+                return NotFound();
+            }
+
+            performanceReviewFeedback.Name = request.Name;
+            performanceReviewFeedback.Comment = request.Comment;
+            performanceReviewFeedback.Rating = request.Rating;
+
+            await PerformanceReviewFeedbackRepository.UpdateAsync(performanceReviewFeedback);
+
+            // FIXME: make me NoContent()
+            return Ok(new { });
         }
 
         private bool CanUserAccessPerformanceReviewFeedback(PerformanceReviewFeedback review)

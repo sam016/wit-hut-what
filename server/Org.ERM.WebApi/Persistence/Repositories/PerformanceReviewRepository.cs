@@ -48,8 +48,8 @@ namespace Org.ERM.WebApi.Persistence.Repositories
                         FROM PerformanceReviewACL PRACL
                         INNER JOIN PerformanceReview PR
                             ON PR.Id = PRACL.PerformanceReviewId
-                            ON PR.OrganizationId = {orgId}
-                            ON PRACL.EmployeeId = {empId}
+                            AND PR.OrganizationId = {orgId}
+                            AND PRACL.EmployeeId = {empId}
                         INNER JOIN Employee EMP
                             ON PR.EmployeeId = EMP.Id
                         ";
