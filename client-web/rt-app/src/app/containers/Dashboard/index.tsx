@@ -12,10 +12,11 @@ import { Row, Col, Button, InputGroup } from 'react-bootstrap';
 import { ProfilePill } from 'app/components/ProfilePill';
 import { PerformanceReviewList } from 'app/components/PerformanceReviewList';
 import { PerformanceReviewCreate } from 'app/components/PerformanceReviewNew';
-import { PerformanceReviewModel, EmployeeModel } from 'app/models';
+import { PerformanceReviewModel, EmployeeModel, FeedbackModel } from 'app/models';
 import { FeedbackList } from 'app/components/FeedbackList';
 import { SelectEmployees } from 'app/components/SelectEmployees';
 import './style.scss';
+import { FeedbackEdit } from 'app/components/FeedbackEdit';
 
 export namespace Dashboard {
   export interface Props extends RouteComponentProps<void> {
@@ -160,6 +161,7 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
   }
 
   updateSelectedEmployeeForFeedback() {
+    // const { feedbacks } = this.props;
     const { selectedPerformanceReview, selectedNewEmployeeForFeedback } = this.state;
 
     console.log('--updateSelectedEmployeeForFeedback');
@@ -171,6 +173,17 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
     // debugger;
 
     const empsInFeedbacks = selectedPerformanceReview.feedbacks.map(f => f.fromEmployeeId);
+
+
+    // if (!selectedPerformanceReview || !selectedPerformanceReview.feedbacks) {
+    //   return;
+    // }
+
+    // // debugger;
+
+    // const feedbacksInReview = feedbacks.data.filter(f => f.performanceReviewId == selectedPerformanceReview.id);
+
+    // const empsInFeedbacks = feedbacksInReview.map(f => f.fromEmployeeId);
 
     const filteredEmployees = this.props.employees.data
       .filter(emp => empsInFeedbacks.indexOf(emp.id) < 0 && selectedPerformanceReview.employeeId !== emp.id);
@@ -197,7 +210,7 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
     this.setState({ creatingNewPerformanceReview: false });
   }
 
-  handleFeedbackNewEmployee(event: React.ChangeEvent<HTMLElement>, item: EmployeeModel) {
+  handleFeedbackNewEmployee(item: EmployeeModel) {
     console.log('--selectedNewEmployeeForFeedback', JSON.stringify(item, null, 2));
     this.setState({
       selectedNewEmployeeForFeedback: item,
@@ -226,6 +239,10 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
       selectedNewEmployeeForFeedback.id,
       selectedPerformanceReview
     );
+  }
+
+  handleFeedbackSave(item: FeedbackModel) {
+    this.props.actions.updatePerformanceReviewFeedback(item);
   }
 
   renderHeader = () => (
@@ -280,7 +297,7 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
   };
 
   renderPerformanceReviewView = () => {
-    const { auth, employees } = this.props;
+    const { auth, employees, feedbacks } = this.props;
     const {
       selectedPerformanceReview: item,
       loadingFeedbacks,
@@ -296,7 +313,9 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
       </Row>
     }
 
-    const empsInFeedbacks = item.feedbacks.map(f => f.fromEmployeeId);
+    const filteredFeedbacks = feedbacks.data.filter(f => f.performanceReviewId === item.id && f.fromEmployeeId !== (auth.data && auth.data.id));
+    const empsInFeedbacks = filteredFeedbacks.map(f => f.fromEmployeeId);
+    const feedbackFromLoggedInUser = feedbacks.data.find(f => f.performanceReviewId === item.id && f.fromEmployeeId === (auth.data && auth.data.id));
 
     const filteredEmployees = employees.data.filter(emp => empsInFeedbacks.indexOf(emp.id) < 0 && item.employeeId !== emp.id);
 
@@ -335,7 +354,14 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
             </div>)
             : null
         }
-        <FeedbackList items={item.feedbacks} isLoading={item.isLoadingFeedbacks} />
+        <FeedbackList items={filteredFeedbacks} isLoading={item.isLoadingFeedbacks} />
+        {
+          feedbackFromLoggedInUser ?
+            <FeedbackEdit item={feedbackFromLoggedInUser}
+              disabled={feedbacks.isLoading}
+              onSave={this.handleFeedbackSave.bind(this)} />
+            : null
+        }
       </Col>
     </Row>);
   };
@@ -349,10 +375,10 @@ export class Dashboard extends React.Component<Dashboard.Props, Dashboard.State>
           </Col>
         </Row>
         <Row className={'dashboard-body'}>
-          <Col xs={5} sm={5} lg={3} className='performance-reviews-list-container'>
+          <Col xs={4} sm={5} lg={3} className='performance-reviews-list-container'>
             {this.renderPerformanceReviewList()}
           </Col>
-          <Col xs={7} sm={7} lg={9} >
+          <Col xs={8} sm={7} lg={9} >
             {this.renderPerformanceReviewView()}
           </Col>
         </Row>

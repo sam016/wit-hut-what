@@ -39,7 +39,6 @@ export class App extends React.Component<App.Props> {
       email: '',
       password: '',
       error: null,
-      counterLoading: 0,
       isLoading: true,
       isAdmin: false,
     },

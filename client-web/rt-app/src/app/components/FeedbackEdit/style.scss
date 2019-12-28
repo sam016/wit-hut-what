@@ -1,0 +1,18 @@
+@import "../../index.scss";
+
+.feedback-item-edit {
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+  padding-top: 0.5em;
+
+  .header {
+    color: $color-primary;
+  }
+
+  &:not(:first-child) {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid $color-border-light;
+  }
+}

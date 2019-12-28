@@ -40,17 +40,22 @@ export const getAllFeedbacks: getAllFeedbacksFunc
   });
 
 export const updateFeedback: updateFeedbackFunc
-  = (performanceReview: PerformanceReviewModel, feedback: FeedbackModel) => ((dispatch: Dispatch, getState: () => RootState) => {
-    const { organizationId, employeeId, id: performanceReviewId } = performanceReview;
+  = (feedback: FeedbackModel) => ((dispatch: Dispatch, getState: () => RootState) => {
 
     dispatch(FeedbacksActions.updateRequest(feedback));
 
     const url = FeedbacksActions.Urls.update
-      .replace('{orgId}', organizationId.toString())
-      .replace('{empId}', employeeId.toString())
-      .replace('{performanceReviewId}', performanceReviewId.toString());
+      .replace('{orgId}', feedback.organizationId.toString())
+      .replace('{empId}', feedback.forEmployeeId.toString())
+      .replace('{performanceReviewId}', feedback.performanceReviewId.toString())
+      .replace('{id}', feedback.id.toString());
 
-    PUT<Array<FeedbackModel>>({ url, body: feedback })
+    PUT<Array<FeedbackModel>>({
+      url, body: {
+        ...feedback,
+        rating: +(feedback.rating || 1),
+      }
+    })
       .then(result => {
         dispatch(FeedbacksActions.updateSuccess(feedback));
       })
@@ -60,4 +65,4 @@ export const updateFeedback: updateFeedbackFunc
   });
 
 export type getAllFeedbacksFunc = (performanceReview: PerformanceReviewModel) => void;
-export type updateFeedbackFunc = (performanceReview: PerformanceReviewModel, feedback: FeedbackModel) => void;
+export type updateFeedbackFunc = (feedback: FeedbackModel) => void;

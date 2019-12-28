@@ -12,7 +12,6 @@ const initialState: RootState.AuthState = {
     role: AuthModel.ROLE.EMPLOYEE,
     token: localStorage.getItem('auth:token') || '',
   },
-  counterLoading: 0, // don't care in auth
   isLoading: false,
   error: null,
   email: null,
@@ -68,7 +67,6 @@ export const authReducer = handleActions<RootState.AuthState, AuthModel | string
       return {
         data: null,
         isLoading: false,
-        counterLoading: 0,
         error: null,
         email: null,
         password: null,

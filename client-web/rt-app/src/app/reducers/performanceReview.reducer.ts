@@ -6,7 +6,6 @@ import { PerformanceReviewModel, FeedbackModel, EmployeeModel } from 'app/models
 const initialState: RootState.PerformanceReviewState = {
   data: [],
   isLoading: false,
-  counterLoading: 0,
   error: null,
   map: {},
 };
@@ -17,15 +16,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
       };
     },
     [PerformanceReviewActions.Type.CREATE_SUCCESS]: (state, action) => {
       if (typeof action.payload !== 'object') {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: 'Error occurred!',
         }
       }
@@ -44,15 +41,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
           ...state.map,
           [performanceReview.id]: performanceReview,
         },
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
     [PerformanceReviewActions.Type.CREATE_ERROR]: (state, action) => {
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
         error: action.payload as string,
       };
     },
@@ -64,15 +59,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
       };
     },
     [PerformanceReviewActions.Type.GET_ALL_FOR_EMP_SUCCESS]: (state, action) => {
       if (!Array.isArray(action.payload)) {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: 'Error occurred!',
         }
       }
@@ -91,15 +84,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
           prev[item.id] = item;
           return prev;
         }, {}),
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
     [PerformanceReviewActions.Type.GET_ALL_FOR_EMP_ERROR]: (state, action) => {
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
         error: action.payload as string,
       };
     },
@@ -115,15 +106,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
       };
     },
     [PerformanceReviewActions.Type.PERMIT_EMP_ACCESS_SUCCESS]: (state, action) => {
       if (typeof action.payload !== 'object') {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: 'Error occurred!',
         }
       }
@@ -136,8 +125,7 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
 
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
     [PerformanceReviewActions.Type.PERMIT_EMP_ACCESS_ERROR]: (state, action) => {
@@ -147,8 +135,7 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
 
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
         error: action.payload as string,
       };
     },
@@ -160,15 +147,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
       };
     },
     [PerformanceReviewActions.Type.REVOKE_EMP_ACCESS_SUCCESS]: (state, action) => {
       if (typeof action.payload !== 'object') {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: 'Error occurred!',
         }
       }
@@ -185,15 +170,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
 
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
     [PerformanceReviewActions.Type.REVOKE_EMP_ACCESS_ERROR]: (state, action) => {
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
         error: action.payload as string,
       };
     },
@@ -205,15 +188,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
       };
     },
     [PerformanceReviewActions.Type.GET_ALL_PERMITTED_EMP_SUCCESS]: (state, action) => {
       if (!Array.isArray(action.payload)) {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: 'Error occurred!',
         }
       }
@@ -226,15 +207,13 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
 
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
     [PerformanceReviewActions.Type.GET_ALL_PERMITTED_EMP_ERROR]: (state, action) => {
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
         error: action.payload as string,
       };
     },
@@ -310,8 +289,7 @@ export const performanceReviewReducer = handleActions<RootState.PerformanceRevie
 
       return {
         ...state,
-        isLoading: (state.counterLoading > 1),
-        counterLoading: state.counterLoading - 1,
+        isLoading: false,
       };
     },
   },

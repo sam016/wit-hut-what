@@ -15,7 +15,7 @@ export namespace RootState {
   interface AjaxModelState<T> {
     data: T;
     isLoading: boolean;
-    counterLoading: number;
+    // counterLoading: number;
     error: string | null;
   }
 

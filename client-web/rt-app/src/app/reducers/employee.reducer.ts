@@ -6,7 +6,6 @@ import { EmployeeModel } from 'app/models';
 const initialState: RootState.EmployeeState = {
   data: [],
   isLoading: false,
-  counterLoading: 0,
   error: null,
   map: {},
 };
@@ -17,7 +16,6 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
       return {
         ...state,
         isLoading: true,
-        counterLoading: state.counterLoading + 1,
         error: null,
       };
     },
@@ -29,8 +27,7 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
             prev[item.id] = item;
             return prev;
           }, {}),
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: null,
         };
       }
@@ -40,8 +37,7 @@ export const employeeReducer = handleActions<RootState.EmployeeState, EmployeeMo
       if (typeof action.payload === 'string') {
         return {
           ...state,
-          isLoading: (state.counterLoading > 1),
-          counterLoading: state.counterLoading - 1,
+          isLoading: false,
           error: action.payload,
         };
       }

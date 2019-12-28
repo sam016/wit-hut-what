@@ -33,6 +33,12 @@ export class PerformanceReviewList extends React.Component<PerformanceReviewList
       return ("Loading...");
     }
 
+    if (!items.length && !isLoading) {
+      return (<p className="msg-on-wall">
+        No feedbacks
+        </p>);
+    }
+
     return (
       <>
         {items.map((item, index) => (
