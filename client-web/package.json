@@ -1,9 +1,8 @@
 {
-  "name": "react-redux-typescript-boilerplate",
+  "name": "sam016-org-erm",
   "version": "1.0.1",
   "private": true,
-  "description": "A frontend boilerplate with React, Redux and Typescript",
-  "homepage": "https://rokoroku.github.io/react-redux-typescript-boilerplate",
+  "description": "org-erm for employee feedback",
   "keywords": [
     "react",
     "redux",
