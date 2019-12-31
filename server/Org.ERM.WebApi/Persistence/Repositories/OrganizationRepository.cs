@@ -8,7 +8,7 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
     public class OrganizationRepository : BaseRepository<Organization>, IOrganizationRepository
     {
-        public OrganizationRepository(DatabaseContext context) : base(context, context.Organization)
+        public OrganizationRepository(ApplicationDbContext context) : base(context, context.Organization)
         { }
     }
 }

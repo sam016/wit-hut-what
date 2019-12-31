@@ -26,9 +26,9 @@ namespace Org.ERM.WebApi.Persistence.Repositories
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : BaseModel, new()
     {
         protected readonly DbSet<T> DBSet;
-        protected readonly DatabaseContext DBContext;
+        protected readonly ApplicationDbContext DBContext;
 
-        public BaseRepository(DatabaseContext dbContext, DbSet<T> dbSet)
+        public BaseRepository(ApplicationDbContext dbContext, DbSet<T> dbSet)
         {
             DBSet = dbSet;
             DBContext = dbContext;

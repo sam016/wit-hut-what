@@ -18,7 +18,7 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
     public class PerformanceReviewFeedbackRepository : BaseRepository<PerformanceReviewFeedback>, IPerformanceReviewFeedbackRepository
     {
-        public PerformanceReviewFeedbackRepository(DatabaseContext context) : base(context, context.PerformanceReviewFeedback)
+        public PerformanceReviewFeedbackRepository(ApplicationDbContext context) : base(context, context.PerformanceReviewFeedback)
         { }
 
         public async Task<IEnumerable<PerformanceReviewFeedback>> GetAllAsync(int orgId)

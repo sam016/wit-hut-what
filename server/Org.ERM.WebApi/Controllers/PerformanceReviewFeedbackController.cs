@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,6 @@ using Org.ERM.WebApi.Models.Requests.PerformanceReviewFeedback;
 using Org.ERM.WebApi.Models.Domain;
 using Org.ERM.WebApi.Persistence.Repositories;
 using Org.ERM.WebApi.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -43,6 +42,14 @@ namespace Org.ERM.WebApi.Controllers
             EmployeeRepository = employeeRepository;
         }
 
+        /// <summary>
+        /// Creates a new feedback to a performance review
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(PerformanceReviewFeedbackDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -82,6 +89,13 @@ namespace Org.ERM.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = performanceReview.Id }, Mapper.Map<PerformanceReviewFeedbackDto>(performanceReview));
         }
 
+        /// <summary>
+        /// Gets all the feedabacks provided in a performance review of the employee
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<PerformanceReviewFeedbackDto>))]
         public async Task<IActionResult> GetAll([FromRoute] int orgId, [FromRoute] int empId, [FromRoute] int performanceReviewId)
@@ -110,6 +124,14 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewFeedbacksDto);
         }
 
+        /// <summary>
+        /// Gets the performance review feedback by id
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewFeedbackDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -127,6 +149,15 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewDto);
         }
 
+        /// <summary>
+        /// Updates the performance review feedback
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewFeedbackDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]

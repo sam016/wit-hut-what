@@ -37,26 +37,10 @@ namespace Org.ERM.WebApi
             services.AddControllers(options =>
                 options.Filters.Add(new HttpResponseExceptionFilter()));
 
-
-            // services.AddMvc(opt =>
-            // {
-            //     opt.UseCentralRoutePrefix(new RouteAttribute("api/v{version}"));
-            // });
-
-            // services.AddApiVersioning(options =>
-            // {
-            //     var apiVersion = new ApiVersion(1, 0);
-
-            //     options.ApiVersionReader = new UrlSegmentApiVersionReader();
-            //     options.DefaultApiVersion = apiVersion;
-            //     options.ReportApiVersions = true;
-            //     options.AssumeDefaultVersionWhenUnspecified = true;
-            // });
-
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.ConfigureSwagger();
 
-            services.AddDbContext<DatabaseContext>(builder =>
+            services.AddDbContext<ApplicationDbContext>(builder =>
             {
                 var host = Configuration.GetValue<string>("Database:Host");
                 var user = Configuration.GetValue<string>("Database:User");
@@ -64,6 +48,21 @@ namespace Org.ERM.WebApi
                 var database = Configuration.GetValue<string>("Database:Database");
                 builder.UseMySql($"server={host};database={database};user={user};password={pass}");
             });
+
+            // Ensure that DB is Created
+            var sp = services.BuildServiceProvider();
+            var dbContext = sp.GetService<ApplicationDbContext>();
+            dbContext.Database.EnsureCreated();
+            // dbContext.Database.Migrate();
+
+            // using (var scope = services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            // {
+            //     using (var context = scope.ServiceProvider.GetService<ApplicationDbContext>())
+            //     {
+            //         context.Database.Migrate();
+            //     }
+            // }
+
 
             services.AddAutoMapper(typeof(Startup));
 

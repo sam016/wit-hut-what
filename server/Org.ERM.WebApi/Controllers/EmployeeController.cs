@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,6 @@ using Org.ERM.WebApi.Models.Requests.Employee;
 using Org.ERM.WebApi.Models.Domain;
 using Org.ERM.WebApi.Persistence.Repositories;
 using Org.ERM.WebApi.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -34,6 +33,12 @@ namespace Org.ERM.WebApi.Controllers
             AuthenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Creates the new employee
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize("SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(EmployeeDto))]
@@ -66,6 +71,11 @@ namespace Org.ERM.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = employee.Id }, Mapper.Map<EmployeeDto>(employee));
         }
 
+        /// <summary>
+        /// Gets all the employees in the organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<EmployeeDto>))]
         public async Task<IActionResult> GetAll([FromRoute] int orgId)
@@ -81,19 +91,21 @@ namespace Org.ERM.WebApi.Controllers
 
             IEnumerable<Employee> employees;
 
-            // logged in user is Employee && requested user id is different
+            // FIXME: logged in user is Employee && requested user id is different
             // if (userRole == UserRole.Employee)
             // {
             //     employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId && e.Id == userId);
             // }
             // else if (userRole == UserRole.Admin)
             // {
-            employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
+            //      employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
             // }
             // else
             // {
             //     employees = await EmployeeRepository.GetAllAsync();
             // }
+
+            employees = await EmployeeRepository.GetAllAsync(e => e.OrganizationId == orgId);
 
             // await Task.Delay(TimeSpan.FromSeconds(2));
 
@@ -102,6 +114,12 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(employeesDto);
         }
 
+        /// <summary>
+        /// Gets the employee by id in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(EmployeeDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -117,11 +135,11 @@ namespace Org.ERM.WebApi.Controllers
                 return NotFound();
             }
 
-            // logged in user is Employee && requested user id is different
-            if (userRole == UserRole.Employee && userId != id)
-            {
-                return NotFound();
-            }
+            //// FIXME: logged in user is Employee && requested user id is different; so user shouldn't be able to access that
+            //if (userRole == UserRole.Employee && userId != id)
+            //{
+            //    return NotFound();
+            //}
 
             var employee = await EmployeeRepository.GetByIdAsync(id);
 

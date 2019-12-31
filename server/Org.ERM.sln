@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.ERM.WebApi", "Org.ERM.WebApi\Org.ERM.WebApi.csproj", "{14CA970B-7FBA-4C83-9725-DDA70370CA7A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.ERM.WebApi.Tests", "Org.ERM.WebApi.Tests\Org.ERM.WebApi.Tests.csproj", "{375D691B-C690-4B88-9F4B-744CB46E0EA9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{14CA970B-7FBA-4C83-9725-DDA70370CA7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14CA970B-7FBA-4C83-9725-DDA70370CA7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14CA970B-7FBA-4C83-9725-DDA70370CA7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14CA970B-7FBA-4C83-9725-DDA70370CA7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{375D691B-C690-4B88-9F4B-744CB46E0EA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{375D691B-C690-4B88-9F4B-744CB46E0EA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{375D691B-C690-4B88-9F4B-744CB46E0EA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{375D691B-C690-4B88-9F4B-744CB46E0EA9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6424BC7-DF41-4259-BB93-8D5B4A93083B}
+	EndGlobalSection
+EndGlobal

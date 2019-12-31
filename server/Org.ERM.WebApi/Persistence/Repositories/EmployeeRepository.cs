@@ -12,11 +12,12 @@ namespace Org.ERM.WebApi.Persistence.Repositories
 
     public class EmployeeRepository : BaseRepository<Employee>, IEmployeeRepository
     {
-        public EmployeeRepository(DatabaseContext context) : base(context, context.Employee)
+        public EmployeeRepository(ApplicationDbContext context) : base(context, context.Employee)
         { }
 
         public async Task<Employee> GetByEmailAsync(string email)
         {
+            var items = await DBSet.ToListAsync();
             return await DBSet.FirstOrDefaultAsync(x => x.Email == email);
         }
     }

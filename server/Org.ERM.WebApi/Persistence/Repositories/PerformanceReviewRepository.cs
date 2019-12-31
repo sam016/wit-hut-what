@@ -26,7 +26,7 @@ namespace Org.ERM.WebApi.Persistence.Repositories
     {
         private readonly IEmployeeRepository EmployeeRepository;
 
-        public PerformanceReviewRepository(DatabaseContext context, IEmployeeRepository employeeRepository)
+        public PerformanceReviewRepository(ApplicationDbContext context, IEmployeeRepository employeeRepository)
         : base(context, context.PerformanceReview)
         {
             EmployeeRepository = employeeRepository;

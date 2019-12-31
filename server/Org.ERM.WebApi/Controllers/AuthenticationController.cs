@@ -2,23 +2,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Org.ERM.WebApi.Exceptions;
-using Org.ERM.WebApi.Models.Domain;
 using Org.ERM.WebApi.Models.Dtos;
 using Org.ERM.WebApi.Models.Requests.Auth;
 using Org.ERM.WebApi.Persistence.Repositories;
 using Org.ERM.WebApi.Utils;
 using Org.ERM.WebApi.Services;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using System;
 
 namespace Org.ERM.WebApi.Controllers
 {
@@ -39,6 +30,11 @@ namespace Org.ERM.WebApi.Controllers
             AuthenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Logs in the user
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("login")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AuthUserTokenDto))]
         [ProducesResponseType(401)]
@@ -61,6 +57,10 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(authTokenDto);
         }
 
+        /// <summary>
+        /// Identifies the logged in user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("whoami")]
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(AuthUserTokenDto))]

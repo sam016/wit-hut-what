@@ -8,7 +8,7 @@ using Org.ERM.WebApi;
 
 namespace Org.ERM.Server.Migrations
 {
-    [DbContext(typeof(DatabaseContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20191226010908_NewIdColsMigration")]
     partial class NewIdColsMigration
     {

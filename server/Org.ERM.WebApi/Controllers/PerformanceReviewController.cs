@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,6 @@ using Org.ERM.WebApi.Models.Requests.PerformanceReview;
 using Org.ERM.WebApi.Models.Domain;
 using Org.ERM.WebApi.Persistence.Repositories;
 using Org.ERM.WebApi.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -46,6 +45,13 @@ namespace Org.ERM.WebApi.Controllers
 
         #region CRUD
 
+        /// <summary>
+        /// Creates a new Performance Review for an employee in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(PerformanceReviewDto))]
@@ -53,6 +59,14 @@ namespace Org.ERM.WebApi.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateAsync([FromRoute] int orgId, [FromRoute] int empId, [FromBody]CreatePerformanceReviewRequest request)
         {
+            var userOrgId = AuthenticationService.GetLoggedInUserOrgId();
+            var userRole= AuthenticationService.GetLoggedInUserRole();
+
+            if (userRole==UserRole.Admin && orgId != userOrgId)
+            {
+                return NotFound();
+            }
+
             if (!(await OrganizationRepository.ExistsAsync(orgId)))
             {
                 return NotFound();
@@ -95,6 +109,12 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewsDto);
         }
 
+        /// <summary>
+        /// Gets all the Performance Reviews for an employee in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<PerformanceReviewDto>))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -123,6 +143,13 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewsDto);
         }
 
+        /// <summary>
+        /// Gets the Performance Review by id for an employee in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -144,6 +171,12 @@ namespace Org.ERM.WebApi.Controllers
 
         #region ACL
 
+        /// <summary>
+        /// Gets the permitted Performance Reviews to an employee for feedback in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <returns></returns>
         [HttpGet("/organizations/{orgId}/employees/{empId}/permitted/performance-reviews")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -194,6 +227,13 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(performanceReviewDtos);
         }
 
+        /// <summary>
+        /// Permits the Performance Reviews to an employee for feedback in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <returns></returns>
         [HttpPost("/organizations/{orgId}/employees/{empId}/permit/performance-reviews/{performanceReviewId}")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(PerformanceReviewFeedbackDto))]
@@ -232,6 +272,13 @@ namespace Org.ERM.WebApi.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Prohibits/Revokes access from an employee for feedback to a Performance Review in an organization
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <param name="empId"></param>
+        /// <param name="performanceReviewId"></param>
+        /// <returns></returns>
         [HttpPost("/organizations/{orgId}/employees/{empId}/prohibit/performance-reviews/{performanceReviewId}")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -255,6 +302,14 @@ namespace Org.ERM.WebApi.Controllers
 
         #endregion
 
+        /// <summary>
+        /// Checks whether user owns the performance review or not
+        /// - Super Admin can access all
+        /// - Org Admin can access only its own org's performance reviews
+        /// - Org Employee can access only its own performance reviews
+        /// </summary>
+        /// <param name="review"></param>
+        /// <returns></returns>
         private bool DoesOwnPerformanceReview(PerformanceReview review)
         {
             var userRole = AuthenticationService.GetLoggedInUserRole();

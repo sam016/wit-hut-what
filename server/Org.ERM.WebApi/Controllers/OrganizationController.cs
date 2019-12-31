@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,6 @@ using Org.ERM.WebApi.Models.Requests.Organization;
 using Org.ERM.WebApi.Models.Domain;
 using Org.ERM.WebApi.Persistence.Repositories;
 using Org.ERM.WebApi.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -34,6 +33,11 @@ namespace Org.ERM.WebApi.Controllers
             AuthenticationService = authenticationService;
         }
 
+        /// <summary>
+        /// Creates the Organization (available only for superamdin)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "SuperAdmin")]
         [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(OrganizationDto))]
@@ -51,6 +55,10 @@ namespace Org.ERM.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = orgDto.Id }, orgDto);
         }
 
+        /// <summary>
+        /// Gets all the organizations
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "SuperAdmin")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<OrganizationDto>))]
@@ -63,6 +71,10 @@ namespace Org.ERM.WebApi.Controllers
             return Ok(orgsDto);
         }
 
+        /// <summary>
+        /// Gets the organization by id
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(OrganizationDto))]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
